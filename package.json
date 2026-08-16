@@ -15,6 +15,7 @@
   },
   "scripts": {
     "build:phase0": "node scripts/build-phase0-browser.mjs",
+    "build:phase2": "node scripts/build-phase2-core.mjs",
     "check:runtime": "node scripts/verify-runtime.mjs",
     "generate:phase1:locks": "node scripts/generate-phase1-locks.mjs",
     "generate:sbom": "node scripts/generate-sbom.mjs",
@@ -24,7 +25,10 @@
     "test:phase0:browser": "npm run build:phase0 && node --test test/phase0/browser-worker.test.mjs",
     "test:phase0": "npm run check:runtime && npm run test:phase0:node && npm run test:phase0:browser",
     "test:phase1": "npm run check:runtime && npm run check:phase1:generated && node --test test/phase1/*.test.mjs",
-    "test": "npm run test:phase0 && npm run test:phase1"
+    "test:phase2:node": "npm run build:phase2 && node --test test/phase2/core-boundary.test.mjs test/phase2/cps-poison-node.test.mjs test/phase2/cps-static.test.mjs test/phase2/json-scan.test.mjs",
+    "test:phase2:browser": "npm run build:phase2 && node --test test/phase2/browser-core.test.mjs",
+    "test:phase2": "npm run check:runtime && npm run test:phase2:node && npm run test:phase2:browser",
+    "test": "npm run test:phase0 && npm run test:phase1 && npm run test:phase2"
   },
   "dependencies": {
     "fs-native-extensions": "1.5.0",

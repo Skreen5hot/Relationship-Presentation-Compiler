@@ -28,9 +28,10 @@ changes visibility only through `hidden`, moves heading focus, tolerates both
 boundaries, and contains no ambient network, timer, dynamic-code, or storage
 surface. Tests exercise these behaviors in the locked conformance DOM.
 
-Phase 2 will consume these digests in the core shell. Release packaging later
-injects the same five values into both host packagings and re-verifies equality,
-as required by EC-03 and Sections 6.7/13.8.
+The Phase 2 core build consumes these digests through packaging-time constant
+injection. Release packaging later injects the same five values into both host
+packagings and re-verifies equality, as required by EC-03 and Sections
+6.7/13.8.
 
 ## Ontology release evidence
 
