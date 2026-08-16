@@ -44,6 +44,16 @@ const result = await compileCore({
   },
 });
 assert.equal(result.status, "success", result.statusLine);
+const sentinel = result.artifacts[".relationship-presentation-poc-owned"];
+const demoText = new TextDecoder("utf-8", { fatal: true }).decode(
+  result.artifacts["demo.html"],
+);
+const pagesIndexText = demoText.replace(
+  'href=".relationship-presentation-poc-owned"',
+  'href="ownership-sentinel.json"',
+);
+assert.notEqual(pagesIndexText, demoText);
+const pagesIndex = new TextEncoder().encode(pagesIndexText);
 
 await rm(siteDirectory, { force: true, recursive: true });
 await mkdir(siteDirectory, { recursive: true });
@@ -52,7 +62,10 @@ await Promise.all([
   ...Object.entries(result.artifacts).map(([name, artifactBytes]) =>
     writeFile(resolve(siteDirectory, name), artifactBytes),
   ),
-  writeFile(resolve(siteDirectory, "index.html"), result.artifacts["demo.html"]),
+  // GitHub Pages deliberately does not serve dot-prefixed paths. The canonical
+  // sentinel remains present; this byte-identical alias keeps its homepage link usable.
+  writeFile(resolve(siteDirectory, "ownership-sentinel.json"), sentinel),
+  writeFile(resolve(siteDirectory, "index.html"), pagesIndex),
 ]);
 
 console.log(

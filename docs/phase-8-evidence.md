@@ -58,7 +58,9 @@ compares the supervised Chromium Worker result with direct execution of the
 same committed bundle, including every returned byte.
 
 `scripts/generate-phase8-site.mjs` invokes the packaged core and writes its
-verified artifacts without rewriting. GitHub Pages deploys those fourteen files,
-plus `.nojekyll` and an `index.html` byte-identical alias of `demo.html`, after
-the Phase 8 Node gate. The live demo exposes links to the full artifact set and
-displays the core fingerprint.
+verified artifacts without rewriting. GitHub Pages refuses to serve
+dot-prefixed URLs even from a `.nojekyll` upload, so the site adds one
+byte-identical `ownership-sentinel.json` alias and changes only the Pages
+`index.html` link target to that alias. The canonical `demo.html`, sentinel, and
+fourteen-file core result remain unchanged. The live homepage exposes usable
+links to the full content set and displays the core fingerprint.

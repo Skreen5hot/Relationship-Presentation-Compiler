@@ -180,8 +180,22 @@ test("the Phase 8 Pages directory is a byte-preserving projection", async () => 
       name,
     );
   }
+  const sentinel = result.artifacts[".relationship-presentation-poc-owned"];
   assert.deepEqual(
+    new Uint8Array(
+      await readFile(resolve(repositoryRoot, "site/ownership-sentinel.json")),
+    ),
+    sentinel,
+  );
+  const index = decoder.decode(
     new Uint8Array(await readFile(resolve(repositoryRoot, "site/index.html"))),
-    result.artifacts["demo.html"],
+  );
+  const demo = decoder.decode(result.artifacts["demo.html"]);
+  assert.equal(
+    index,
+    demo.replace(
+      'href=".relationship-presentation-poc-owned"',
+      'href="ownership-sentinel.json"',
+    ),
   );
 });

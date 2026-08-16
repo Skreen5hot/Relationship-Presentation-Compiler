@@ -186,5 +186,8 @@ JCS fingerprints and every recorded hash, checks the core manifest for absence
 of host evidence, and proves that mutation of any artifact plus extra or missing
 entries is rejected. The Chromium gate requires the supervised Worker to return
 the same fingerprints, status line, filenames, and every artifact byte as the
-Node packaging. GitHub Pages publishes that verified byte map, with `demo.html`
-as the index alias.
+Node packaging. GitHub Pages publishes the verified byte map and uses a
+Pages-only index adapter: because Pages refuses dot-prefixed URLs, the homepage
+links the canonical sentinel through a byte-identical
+`ownership-sentinel.json` alias. `demo.html` and the core-returned fourteen-file
+set remain unchanged.
