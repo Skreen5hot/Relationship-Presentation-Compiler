@@ -16,9 +16,15 @@
   "scripts": {
     "build:phase0": "node scripts/build-phase0-browser.mjs",
     "check:runtime": "node scripts/verify-runtime.mjs",
+    "generate:phase1:locks": "node scripts/generate-phase1-locks.mjs",
+    "generate:sbom": "node scripts/generate-sbom.mjs",
+    "generate:phase1": "npm run generate:phase1:locks && npm run generate:sbom",
+    "check:phase1:generated": "node scripts/generate-phase1-locks.mjs --check && node scripts/generate-sbom.mjs --check",
     "test:phase0:node": "npm run build:phase0 && node --test test/phase0/decision-record.test.mjs test/phase0/filesystem-lock.test.mjs test/phase0/jsonld-cps.test.mjs",
     "test:phase0:browser": "npm run build:phase0 && node --test test/phase0/browser-worker.test.mjs",
-    "test:phase0": "npm run check:runtime && npm run test:phase0:node && npm run test:phase0:browser"
+    "test:phase0": "npm run check:runtime && npm run test:phase0:node && npm run test:phase0:browser",
+    "test:phase1": "npm run check:runtime && npm run check:phase1:generated && node --test test/phase1/*.test.mjs",
+    "test": "npm run test:phase0 && npm run test:phase1"
   },
   "dependencies": {
     "fs-native-extensions": "1.5.0",

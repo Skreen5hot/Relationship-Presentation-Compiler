@@ -1,4 +1,4 @@
-name: Phase 0 gates
+name: Phase 0 and 1 gates
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase0-${{ github.workflow }}-${{ github.ref }}
+  group: phase0-phase1-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -40,8 +40,11 @@ jobs:
       - name: Verify runtime lock baseline
         run: npm run check:runtime
 
-      - name: Run Node, schema, CPS, and native-lock gates
+      - name: Run Phase 0 Node, schema, CPS, and native-lock gates
         run: npm run test:phase0:node
+
+      - name: Verify locked artifacts, ontology evidence, carriers, and SBOM
+        run: npm run test:phase1
 
   chromium-worker:
     name: Chromium Worker equivalence

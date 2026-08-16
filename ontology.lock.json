@@ -1,0 +1,37 @@
+{
+  "lockVersion": "ontology-lock-v1.0",
+  "ontologies": [
+    {
+      "role": "bfo",
+      "ontologyIri": "http://purl.obolibrary.org/obo/bfo.owl",
+      "versionIri": "http://purl.obolibrary.org/obo/bfo/2020/bfo-core.ttl",
+      "sourceReleaseOrTag": "release-2024-01-29",
+      "sourceCommit": "044490fc5100ffed6df7d4d15cbc167698b6fdee",
+      "localFilename": "vendor/ontology/bfo-core.ttl",
+      "sha256": "6944e2c96a0d8709dc15ae5364792019e208061eda3f32311af4f3b8d8443a3b",
+      "license": "CC-BY-4.0",
+      "note": "Upstream owl:versionIRI genuinely ends in bfo-core.ttl at this release. Verified against the pinned commit; do not correct."
+    },
+    {
+      "role": "cco-agent",
+      "ontologyIri": "https://www.commoncoreontologies.org/AgentOntology",
+      "versionIri": "https://www.commoncoreontologies.org/2024-11-05/AgentOntology",
+      "sourceReleaseOrTag": "v2.0-2024-11-06",
+      "sourceCommit": "510dad76be0ef710b65a421075af912af25342b7",
+      "localFilename": "vendor/ontology/AgentOntology.ttl",
+      "sha256": "ab9989895089f8adb445426c5bcfc9bc1a1100f981c15b1e7349fd71bfe18e85",
+      "license": "BSD-3-Clause",
+      "note": "Upstream owl:versionIRI is dated 2024-11-05 despite the v2.0-2024-11-06 tag. Verified against the pinned commit; do not correct."
+    },
+    {
+      "role": "cco-information-entity",
+      "ontologyIri": "https://www.commoncoreontologies.org/InformationEntityOntology",
+      "versionIri": "https://www.commoncoreontologies.org/2024-11-06/InformationEntityOntology",
+      "sourceReleaseOrTag": "v2.0-2024-11-06",
+      "sourceCommit": "510dad76be0ef710b65a421075af912af25342b7",
+      "localFilename": "vendor/ontology/InformationEntityOntology.ttl",
+      "sha256": "a074aaf66f3d7177b6293ff5714c8a86a7b00ca47e357dd0c91e3def697e9d9f",
+      "license": "BSD-3-Clause"
+    }
+  ]
+}

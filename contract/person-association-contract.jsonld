@@ -1,0 +1,10 @@
+{
+  "@context": "../contexts/poc.context.jsonld",
+  "@id": "rp:PersonAssociation",
+  "@type": "owl:Class",
+  "subClassOf": "obo:BFO_0000145",
+  "label": "Person Association",
+  "definition": "A Person Association is a relational quality that specifically depends on exactly two distinct Persons and for which neither Person occupies a distinguished directional participant role.",
+  "comment": "This local contract class constrains the source pattern eligible for the supported two-slide explainer profile. It does not introduce a new object property and does not claim that all BFO relational qualities are person associations.",
+  "example": "An association-quality instance that specifically depends on Alice and Bob, where neither participant is directionally privileged by the source fixture."
+}

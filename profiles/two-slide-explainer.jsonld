@@ -1,0 +1,15 @@
+{
+  "@context": "../contexts/poc.context.jsonld",
+  "@id": "profile:two-slide-explainer-v3",
+  "@type": "projection:PresentationProfile",
+  "projection:slideCount": 2,
+  "projection:participantOrder": "utf16-code-unit-ascending-label",
+  "projection:eligibleSourceClass": { "@id": "rp:PersonAssociation" },
+  "projection:overviewRule": { "@id": "rule:person-association-overview-v1-0" },
+  "projection:associationTemplate": "{participant1} is associated with {participant2}.",
+  "projection:documentTitleTemplate": "{relationshipTitle} presentation",
+  "projection:participantSlideTitle": "Participants",
+  "projection:advanceLabel": "Next",
+  "projection:backLabel": "Previous",
+  "projection:outputFormat": { "@id": "projection:HTML" }
+}

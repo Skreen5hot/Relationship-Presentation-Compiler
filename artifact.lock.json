@@ -1,0 +1,30 @@
+{
+  "lockVersion": "artifact-lock-v1.0",
+  "artifacts": [
+    {
+      "role": "context",
+      "path": "contexts/poc.context.jsonld",
+      "sha256": "6e27b066fa6f205e130f322f479c89edd0c5e64a12800f3bcb9ea1117822b484"
+    },
+    {
+      "role": "contract",
+      "path": "contract/person-association-contract.jsonld",
+      "sha256": "09dffb9112967a8e725244e8caa03e055a3f88761af545459a773a5a01722322"
+    },
+    {
+      "role": "supported-profile",
+      "path": "profiles/two-slide-explainer.jsonld",
+      "sha256": "cfa9db81b1388b11342e7a4433f259acc49595d8b801072bccd0587c0305c296"
+    },
+    {
+      "role": "carrier-style",
+      "path": "carrier/presentation.css",
+      "sha256": "ffcf45b266ad10b4dc1f21d604beec4db52a3a618f13541444ed77e6f3a8cc3d"
+    },
+    {
+      "role": "carrier-navigation",
+      "path": "carrier/navigation.js",
+      "sha256": "94d1406758a8fe887a8d39f3559b505099ab08d5e2af39834b7f52bee5e914ad"
+    }
+  ]
+}
