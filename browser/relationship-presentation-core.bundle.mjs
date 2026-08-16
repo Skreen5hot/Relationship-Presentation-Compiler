@@ -4154,15 +4154,23 @@ function scanJsonText(text) {
   return { depth: maximumDepth, value: JSON.parse(text) };
 }
 
-// src/core/phase5.js
+// src/core/phase6.js
 init_define_RPC_ARTIFACT_DIGESTS();
 
-// src/core/jsonld-load.js
+// src/core/build-narrative.js
 init_define_RPC_ARTIFACT_DIGESTS();
-var import_context = __toESM(require_context(), 1);
-var import_ContextResolver = __toESM(require_ContextResolver(), 1);
-var import_expand = __toESM(require_expand(), 1);
-var import_toRdf = __toESM(require_toRdf(), 1);
+
+// src/core/template.js
+init_define_RPC_ARTIFACT_DIGESTS();
+function substituteAssociation(template, first, second) {
+  return template.replace(
+    /\{participant1\}|\{participant2\}/gu,
+    (token) => token === "{participant1}" ? first : second
+  );
+}
+function substituteRelationshipTitle(template, relationshipTitle) {
+  return template.replace(/\{relationshipTitle\}/gu, () => relationshipTitle);
+}
 
 // src/core/vocabulary.js
 init_define_RPC_ARTIFACT_DIGESTS();
@@ -4224,7 +4232,269 @@ var ALLOWED_VOCABULARY_NAMESPACES = [
   CONTRACT
 ];
 
+// src/core/build-narrative.js
+function compactRule(iri) {
+  if (typeof iri !== "string" || !iri.startsWith(RULE)) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  return `rule:${iri.slice(RULE.length)}`;
+}
+function sameValues(actual, expected) {
+  return Array.isArray(actual) && actual.length === expected.length && actual.every((value, index) => value === expected[index]);
+}
+function associationSources(template, first, second) {
+  const sources = [];
+  template.replace(/\{participant1\}|\{participant2\}/gu, (token) => {
+    const source = token === "{participant1}" ? first.name : second.name;
+    if (!sources.includes(source)) {
+      sources.push(source);
+    }
+    return token;
+  });
+  return sources;
+}
+function expectedContent(selection, profile) {
+  const first = selection.participants[0];
+  const second = selection.participants[1];
+  return [
+    {
+      id: "run:document-title-content",
+      sequence: 1,
+      role: "projection:DocumentTitleContent",
+      text: substituteRelationshipTitle(
+        profile.documentTitleTemplate,
+        selection.designatorLabel
+      ),
+      derivedFrom: [selection.designatorNode],
+      generatedBy: "rule:document-title-from-profile-v1-0"
+    },
+    {
+      id: "run:title-content-1",
+      sequence: 1,
+      role: "projection:DeckTitleContent",
+      text: selection.designatorLabel,
+      derivedFrom: [selection.designatorNode],
+      generatedBy: "rule:relationship-title-from-resolving-designator-v1-0"
+    },
+    {
+      id: "run:primary-message-content-1",
+      sequence: 2,
+      role: "projection:PrimaryMessageContent",
+      text: substituteAssociation(
+        profile.associationTemplate,
+        first.label,
+        second.label
+      ),
+      derivedFrom: associationSources(profile.associationTemplate, first, second),
+      generatedBy: compactRule(profile.overviewRule)
+    },
+    {
+      id: "run:slide-title-content-2",
+      sequence: 1,
+      role: "projection:SlideTitleContent",
+      text: profile.participantSlideTitle,
+      generatedBy: "rule:participant-slide-title-from-profile-v1-0"
+    },
+    {
+      id: "run:participant-item-content-1",
+      sequence: 2,
+      role: "projection:ParticipantItemContent",
+      text: first.label,
+      derivedFrom: [first.name],
+      generatedBy: "rule:participant-name-label-v1-0"
+    },
+    {
+      id: "run:participant-item-content-2",
+      sequence: 3,
+      role: "projection:ParticipantItemContent",
+      text: second.label,
+      derivedFrom: [second.name],
+      generatedBy: "rule:participant-name-label-v1-0"
+    }
+  ];
+}
+function validateNarrativeProvenance(narrative, selection, profile) {
+  const units = narrative?.hasUnit;
+  if (!Array.isArray(narrative?.hasDocumentContent) || narrative.hasDocumentContent.length !== 1 || !Array.isArray(units) || units.length !== profile.slideCount || units.some((unit, index) => unit.sequence !== index + 1)) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  const actualContent = [
+    ...narrative.hasDocumentContent,
+    ...units.flatMap(
+      (unit) => Array.isArray(unit.hasContent) ? unit.hasContent : []
+    )
+  ];
+  const expected = expectedContent(selection, profile);
+  if (actualContent.length !== expected.length) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  const byId = new Map(actualContent.map((content) => [content?.["@id"], content]));
+  if (byId.size !== expected.length) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  for (const record of expected) {
+    const content = byId.get(record.id);
+    const hasDerivedFrom = Object.prototype.hasOwnProperty.call(
+      content ?? {},
+      "derivedFrom"
+    );
+    if (content?.["@type"] !== "projection:TextContent" || content.sequence !== record.sequence || content.contentRole !== record.role || content.textValue !== record.text || content.generatedBy !== record.generatedBy || (record.derivedFrom === void 0 ? hasDerivedFrom : !hasDerivedFrom || !sameValues(content.derivedFrom, record.derivedFrom) || content.derivedFrom.length === 0)) {
+      fail("INTERNAL_COMPILER_ERROR");
+    }
+  }
+}
+function contentNode(record) {
+  const node = {
+    "@id": record.id,
+    "@type": "projection:TextContent",
+    sequence: record.sequence,
+    contentRole: record.role,
+    textValue: record.text
+  };
+  if (record.derivedFrom !== void 0) {
+    node.derivedFrom = record.derivedFrom;
+  }
+  node.generatedBy = record.generatedBy;
+  return node;
+}
+function buildNarrative(selection, profile) {
+  if (profile.slideCount !== 2 || selection.participants.length !== 2 || typeof selection.designatorLabel !== "string" || !profile.documentTitleTemplate.includes("{relationshipTitle}") || !profile.associationTemplate.includes("{participant1}") || !profile.associationTemplate.includes("{participant2}")) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  const content = expectedContent(selection, profile).map(contentNode);
+  const narrative = {
+    "@context": "./poc.context.jsonld",
+    "@id": "run:narrative",
+    "@type": "projection:Narrative",
+    hasDocumentContent: [content[0]],
+    hasUnit: [
+      {
+        "@id": "run:narrative-unit-1",
+        "@type": "projection:NarrativeUnit",
+        sequence: 1,
+        hasContent: [content[1], content[2]]
+      },
+      {
+        "@id": "run:narrative-unit-2",
+        "@type": "projection:NarrativeUnit",
+        sequence: 2,
+        hasContent: [content[3], content[4], content[5]]
+      }
+    ]
+  };
+  validateNarrativeProvenance(narrative, selection, profile);
+  return narrative;
+}
+
+// src/core/build-presentation.js
+init_define_RPC_ARTIFACT_DIGESTS();
+function compactProfile(iri) {
+  if (typeof iri !== "string" || !iri.startsWith(PROFILE)) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  return `profile:${iri.slice(PROFILE.length)}`;
+}
+function buildPresentation(narrative, profile) {
+  if (profile.slideCount !== 2 || narrative.hasUnit?.length !== profile.slideCount) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  const presentation = {
+    "@context": "./poc.context.jsonld",
+    "@id": "run:presentation",
+    "@type": "projection:Presentation",
+    profileRef: compactProfile(profile.id),
+    hasDocumentContent: ["run:document-title-content"],
+    hasSlide: [
+      {
+        "@id": "run:slide-1",
+        "@type": "projection:Slide",
+        sequence: 1,
+        projectsNarrativeUnit: "run:narrative-unit-1",
+        hasRegion: [
+          {
+            "@id": "run:slide-1-title-region",
+            "@type": "projection:DeckTitleRegion",
+            sequence: 1,
+            projectsContent: "run:title-content-1"
+          },
+          {
+            "@id": "run:slide-1-message-region",
+            "@type": "projection:PrimaryMessageRegion",
+            sequence: 2,
+            projectsContent: "run:primary-message-content-1"
+          },
+          {
+            "@id": "run:slide-1-navigation-region",
+            "@type": "projection:NavigationRegion",
+            sequence: 3,
+            intent: "projection:Advance",
+            buttonLabel: profile.advanceLabel,
+            generatedBy: "rule:advance-navigation-from-profile-v1-0"
+          }
+        ]
+      },
+      {
+        "@id": "run:slide-2",
+        "@type": "projection:Slide",
+        sequence: 2,
+        projectsNarrativeUnit: "run:narrative-unit-2",
+        hasRegion: [
+          {
+            "@id": "run:slide-2-title-region",
+            "@type": "projection:SlideTitleRegion",
+            sequence: 1,
+            projectsContent: "run:slide-title-content-2"
+          },
+          {
+            "@id": "run:slide-2-items-region",
+            "@type": "projection:ItemCollectionRegion",
+            sequence: 2,
+            hasItem: [
+              {
+                "@id": "run:slide-2-item-region-1",
+                "@type": "projection:ItemRegion",
+                sequence: 1,
+                projectsContent: "run:participant-item-content-1"
+              },
+              {
+                "@id": "run:slide-2-item-region-2",
+                "@type": "projection:ItemRegion",
+                sequence: 2,
+                projectsContent: "run:participant-item-content-2"
+              }
+            ]
+          },
+          {
+            "@id": "run:slide-2-navigation-region",
+            "@type": "projection:NavigationRegion",
+            sequence: 3,
+            intent: "projection:GoBack",
+            buttonLabel: profile.backLabel,
+            generatedBy: "rule:back-navigation-from-profile-v1-0"
+          }
+        ]
+      }
+    ]
+  };
+  if (presentation.hasSlide.length !== profile.slideCount || presentation.hasSlide.some(
+    (slide, index) => slide.sequence !== index + 1 || slide.hasRegion.some(
+      (region, regionIndex) => region.sequence !== regionIndex + 1
+    )
+  )) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  return presentation;
+}
+
+// src/core/phase5.js
+init_define_RPC_ARTIFACT_DIGESTS();
+
 // src/core/jsonld-load.js
+init_define_RPC_ARTIFACT_DIGESTS();
+var import_context = __toESM(require_context(), 1);
+var import_ContextResolver = __toESM(require_ContextResolver(), 1);
+var import_expand = __toESM(require_expand(), 1);
+var import_toRdf = __toESM(require_toRdf(), 1);
 var MAX_CONTEXT_TERMS = 250;
 var MAX_TRIPLES = 5e3;
 function isObject(value) {
@@ -4776,13 +5046,14 @@ function selectDesignator(graph, designator, violations) {
   const designatorNode = candidates[0];
   const labels = objects(graph, designatorNode, RDFS_LABEL);
   const designated = objects(graph, designatorNode, DESIGNATES);
-  if (labels.length !== 1 || criticalLabel(labels[0]) !== designator || designated.length !== 1 || designated[0].kind !== "iri" || !isAbsoluteIri2(designated[0].value) || hasMetaType(graph, designatorNode)) {
+  const designatorLabel = labels.length === 1 ? criticalLabel(labels[0]) : null;
+  if (labels.length !== 1 || designatorLabel !== designator || designated.length !== 1 || designated[0].kind !== "iri" || !isAbsoluteIri2(designated[0].value) || hasMetaType(graph, designatorNode)) {
     violations.push(
       violation("RESOLVING_DESIGNATOR_IS_VALID", designatorNode)
     );
     return null;
   }
-  return { designatorNode, root: designated[0].value };
+  return { designatorLabel, designatorNode, root: designated[0].value };
 }
 function validateParticipant(graph, participant, violations) {
   if (!isAbsoluteIri2(participant) || !hasIri(graph, participant, RDF_TYPE, PERSON) || hasMetaType(graph, participant)) {
@@ -4813,12 +5084,6 @@ function selectName(graph, participant, violations) {
   }
   return { label, name, participant };
 }
-function substituteAssociation(template, first, second) {
-  return template.replace(
-    /\{participant1\}|\{participant2\}/gu,
-    (token) => token === "{participant1}" ? first : second
-  );
-}
 function resolveAndValidate(graph, designator, profile) {
   validateSourceNamespaces(graph);
   const violations = [];
@@ -4826,7 +5091,7 @@ function resolveAndValidate(graph, designator, profile) {
   if (resolution === null) {
     fail("FIXTURE_CONTRACT_FAILED", violations);
   }
-  const { designatorNode, root } = resolution;
+  const { designatorLabel, designatorNode, root } = resolution;
   if (!hasIri(graph, root, RDF_TYPE, profile.eligibleSourceClass)) {
     violations.push(
       violation("RESOLVED_ENTITY_IS_PERSON_ASSOCIATION", root)
@@ -4905,6 +5170,7 @@ function resolveAndValidate(graph, designator, profile) {
     fail("SOURCE_GRAPH_CONTAMINATED");
   }
   return {
+    designatorLabel,
     designatorNode,
     root,
     participants: selectedNames,
@@ -5006,6 +5272,74 @@ async function runPhase5(parsedInputs) {
     selection,
     sourceGraph,
     stages: { request, resolution, contractValidation }
+  };
+}
+
+// src/core/select-content.js
+init_define_RPC_ARTIFACT_DIGESTS();
+var REASONS = [
+  "projection:ResolvedRoot",
+  "projection:ResolvingDesignator",
+  "projection:SpecificallyDependedOnParticipant",
+  "projection:DesignatesParticipant",
+  "projection:SpecificallyDependedOnParticipant",
+  "projection:DesignatesParticipant"
+];
+function selectContent(selection) {
+  const selectedSource = [
+    selection.root,
+    selection.designatorNode,
+    selection.participants[0]?.participant,
+    selection.participants[0]?.name,
+    selection.participants[1]?.participant,
+    selection.participants[1]?.name
+  ];
+  if (selectedSource.some((source) => typeof source !== "string") || new Set(selectedSource).size !== 6) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  const selectionTrace = selectedSource.map((source, index) => ({
+    "@id": `run:trace-${index + 1}`,
+    "@type": "projection:SelectionTrace",
+    sequence: index + 1,
+    source,
+    reason: REASONS[index]
+  }));
+  if (selectionTrace.length !== selectedSource.length || selectionTrace.some(
+    (trace, index) => trace.sequence !== index + 1 || trace.source !== selectedSource[index]
+  )) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  return {
+    "@context": "./poc.context.jsonld",
+    "@id": "run:manifest",
+    "@type": "projection:ContentManifest",
+    root: selection.root,
+    selectedSource,
+    selectionTrace,
+    selectionRule: "rule:person-association-neighborhood-v1-0"
+  };
+}
+
+// src/core/phase6.js
+async function runPhase6(parsedInputs) {
+  const phase5 = await runPhase5(parsedInputs);
+  const contentManifest = selectContent(phase5.selection);
+  const narrative = buildNarrative(phase5.selection, phase5.profile);
+  const presentation = buildPresentation(narrative, phase5.profile);
+  return {
+    ...phase5,
+    artifacts: {
+      ...phase5.artifacts,
+      "04-content-manifest.jsonld": serializeJsonLd(contentManifest),
+      "05-narrative.jsonld": serializeJsonLd(narrative),
+      "06-presentation.jsonld": serializeJsonLd(presentation)
+    },
+    stages: {
+      ...phase5.stages,
+      contentManifest,
+      narrative,
+      presentation
+    }
   };
 }
 
@@ -5147,7 +5481,7 @@ async function compileCore(coreRequest) {
     }
   }
   try {
-    await runPhase5(parsedInputs);
+    await runPhase6(parsedInputs);
   } catch (error) {
     if (error instanceof CoreFailure) {
       return failure(error.code, error.violations);

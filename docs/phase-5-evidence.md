@@ -6,10 +6,11 @@ Evidence date: 2026-08-16
 
 Specification: Relationship Presentation Compiler v1.0, edge-canonical re-cut
 
-Phase 5 implements C3–C6 and canonical Stages 01–03. A conforming invocation
-crosses this entire boundary and then returns the deterministic
-`INTERNAL_COMPILER_ERROR` sentinel because Stage 04 and the complete success
-artifact set begin in Phase 6. Phase 5 does not claim a successful v1.0 build.
+Phase 5 implements C3–C6 and canonical Stages 01–03. At the Phase 5 exit, a
+conforming invocation crossed this entire boundary and then returned the
+deterministic `INTERNAL_COMPILER_ERROR` sentinel at Stage 04. Phase 6 now
+continues the same invocation through Stage 06. Phase 5 did not claim a
+successful v1.0 build.
 
 ## Trusted JSON-LD graph
 

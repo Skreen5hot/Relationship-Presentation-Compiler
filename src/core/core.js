@@ -2,7 +2,7 @@ import { EMBEDDED_ARTIFACT_DIGESTS } from "./build-constants.js";
 import { CoreFailure } from "./core-failure.js";
 import { buildErrorReport } from "./error-report.js";
 import { decodeUtf8Input, JsonScanError, scanJsonText } from "./json-scan.js";
-import { runPhase5 } from "./phase5.js";
+import { runPhase6 } from "./phase6.js";
 
 const INPUT_ROLES = [
   "context",
@@ -164,7 +164,7 @@ export async function compileCore(coreRequest) {
   }
 
   try {
-    await runPhase5(parsedInputs);
+    await runPhase6(parsedInputs);
   } catch (error) {
     if (error instanceof CoreFailure) {
       return failure(error.code, error.violations);
@@ -172,7 +172,7 @@ export async function compileCore(coreRequest) {
     return failure("INTERNAL_COMPILER_ERROR");
   }
 
-  // Stages 04–08 are deliberately introduced by Phases 6–8.
+  // Stage 07 and the complete success artifact set arrive in Phases 7–8.
   return failure("INTERNAL_COMPILER_ERROR");
 }
 

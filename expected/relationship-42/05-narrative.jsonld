@@ -1,0 +1,87 @@
+{
+  "@context": "./poc.context.jsonld",
+  "@id": "run:narrative",
+  "@type": "projection:Narrative",
+  "hasDocumentContent": [
+    {
+      "@id": "run:document-title-content",
+      "@type": "projection:TextContent",
+      "sequence": 1,
+      "contentRole": "projection:DocumentTitleContent",
+      "textValue": "Relationship 42 presentation",
+      "derivedFrom": [
+        "https://example.org/relationship-presentation-poc/kg/relationship-42-identifier"
+      ],
+      "generatedBy": "rule:document-title-from-profile-v1-0"
+    }
+  ],
+  "hasUnit": [
+    {
+      "@id": "run:narrative-unit-1",
+      "@type": "projection:NarrativeUnit",
+      "sequence": 1,
+      "hasContent": [
+        {
+          "@id": "run:title-content-1",
+          "@type": "projection:TextContent",
+          "sequence": 1,
+          "contentRole": "projection:DeckTitleContent",
+          "textValue": "Relationship 42",
+          "derivedFrom": [
+            "https://example.org/relationship-presentation-poc/kg/relationship-42-identifier"
+          ],
+          "generatedBy": "rule:relationship-title-from-resolving-designator-v1-0"
+        },
+        {
+          "@id": "run:primary-message-content-1",
+          "@type": "projection:TextContent",
+          "sequence": 2,
+          "contentRole": "projection:PrimaryMessageContent",
+          "textValue": "Alice is associated with Bob.",
+          "derivedFrom": [
+            "https://example.org/relationship-presentation-poc/kg/alice-name",
+            "https://example.org/relationship-presentation-poc/kg/bob-name"
+          ],
+          "generatedBy": "rule:person-association-overview-v1-0"
+        }
+      ]
+    },
+    {
+      "@id": "run:narrative-unit-2",
+      "@type": "projection:NarrativeUnit",
+      "sequence": 2,
+      "hasContent": [
+        {
+          "@id": "run:slide-title-content-2",
+          "@type": "projection:TextContent",
+          "sequence": 1,
+          "contentRole": "projection:SlideTitleContent",
+          "textValue": "Participants",
+          "generatedBy": "rule:participant-slide-title-from-profile-v1-0"
+        },
+        {
+          "@id": "run:participant-item-content-1",
+          "@type": "projection:TextContent",
+          "sequence": 2,
+          "contentRole": "projection:ParticipantItemContent",
+          "textValue": "Alice",
+          "derivedFrom": [
+            "https://example.org/relationship-presentation-poc/kg/alice-name"
+          ],
+          "generatedBy": "rule:participant-name-label-v1-0"
+        },
+        {
+          "@id": "run:participant-item-content-2",
+          "@type": "projection:TextContent",
+          "sequence": 3,
+          "contentRole": "projection:ParticipantItemContent",
+          "textValue": "Bob",
+          "derivedFrom": [
+            "https://example.org/relationship-presentation-poc/kg/bob-name"
+          ],
+          "generatedBy": "rule:participant-name-label-v1-0"
+        }
+      ]
+    }
+  ]
+}

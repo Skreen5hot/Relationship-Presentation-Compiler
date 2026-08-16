@@ -1,0 +1,59 @@
+{
+  "@context": "./poc.context.jsonld",
+  "@id": "run:manifest",
+  "@type": "projection:ContentManifest",
+  "root": "https://example.org/relationship-presentation-poc/kg/relationship-42",
+  "selectedSource": [
+    "https://example.org/relationship-presentation-poc/kg/relationship-42",
+    "https://example.org/relationship-presentation-poc/kg/relationship-42-identifier",
+    "https://example.org/relationship-presentation-poc/kg/alice",
+    "https://example.org/relationship-presentation-poc/kg/alice-name",
+    "https://example.org/relationship-presentation-poc/kg/bob",
+    "https://example.org/relationship-presentation-poc/kg/bob-name"
+  ],
+  "selectionTrace": [
+    {
+      "@id": "run:trace-1",
+      "@type": "projection:SelectionTrace",
+      "sequence": 1,
+      "source": "https://example.org/relationship-presentation-poc/kg/relationship-42",
+      "reason": "projection:ResolvedRoot"
+    },
+    {
+      "@id": "run:trace-2",
+      "@type": "projection:SelectionTrace",
+      "sequence": 2,
+      "source": "https://example.org/relationship-presentation-poc/kg/relationship-42-identifier",
+      "reason": "projection:ResolvingDesignator"
+    },
+    {
+      "@id": "run:trace-3",
+      "@type": "projection:SelectionTrace",
+      "sequence": 3,
+      "source": "https://example.org/relationship-presentation-poc/kg/alice",
+      "reason": "projection:SpecificallyDependedOnParticipant"
+    },
+    {
+      "@id": "run:trace-4",
+      "@type": "projection:SelectionTrace",
+      "sequence": 4,
+      "source": "https://example.org/relationship-presentation-poc/kg/alice-name",
+      "reason": "projection:DesignatesParticipant"
+    },
+    {
+      "@id": "run:trace-5",
+      "@type": "projection:SelectionTrace",
+      "sequence": 5,
+      "source": "https://example.org/relationship-presentation-poc/kg/bob",
+      "reason": "projection:SpecificallyDependedOnParticipant"
+    },
+    {
+      "@id": "run:trace-6",
+      "@type": "projection:SelectionTrace",
+      "sequence": 6,
+      "source": "https://example.org/relationship-presentation-poc/kg/bob-name",
+      "reason": "projection:DesignatesParticipant"
+    }
+  ],
+  "selectionRule": "rule:person-association-neighborhood-v1-0"
+}

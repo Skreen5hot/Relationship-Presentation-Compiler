@@ -12,6 +12,7 @@ import {
   normalizeCriticalString,
   scalarLength,
 } from "./unicode.js";
+import { substituteAssociation } from "./template.js";
 import {
   ALLOWED_VOCABULARY_NAMESPACES,
   CONTRACT,
@@ -158,9 +159,10 @@ function selectDesignator(graph, designator, violations) {
   const designatorNode = candidates[0];
   const labels = objects(graph, designatorNode, RDFS_LABEL);
   const designated = objects(graph, designatorNode, DESIGNATES);
+  const designatorLabel = labels.length === 1 ? criticalLabel(labels[0]) : null;
   if (
     labels.length !== 1 ||
-    criticalLabel(labels[0]) !== designator ||
+    designatorLabel !== designator ||
     designated.length !== 1 ||
     designated[0].kind !== "iri" ||
     !isAbsoluteIri(designated[0].value) ||
@@ -171,7 +173,7 @@ function selectDesignator(graph, designator, violations) {
     );
     return null;
   }
-  return { designatorNode, root: designated[0].value };
+  return { designatorLabel, designatorNode, root: designated[0].value };
 }
 
 function validateParticipant(graph, participant, violations) {
@@ -217,12 +219,6 @@ function selectName(graph, participant, violations) {
   return { label, name, participant };
 }
 
-function substituteAssociation(template, first, second) {
-  return template.replace(/\{participant1\}|\{participant2\}/gu, (token) =>
-    token === "{participant1}" ? first : second,
-  );
-}
-
 export function resolveAndValidate(graph, designator, profile) {
   validateSourceNamespaces(graph);
   const violations = [];
@@ -231,7 +227,7 @@ export function resolveAndValidate(graph, designator, profile) {
     fail("FIXTURE_CONTRACT_FAILED", violations);
   }
 
-  const { designatorNode, root } = resolution;
+  const { designatorLabel, designatorNode, root } = resolution;
   if (!hasIri(graph, root, RDF_TYPE, profile.eligibleSourceClass)) {
     violations.push(
       violation("RESOLVED_ENTITY_IS_PERSON_ASSOCIATION", root),
@@ -335,6 +331,7 @@ export function resolveAndValidate(graph, designator, profile) {
   }
 
   return {
+    designatorLabel,
     designatorNode,
     root,
     participants: selectedNames,
