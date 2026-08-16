@@ -1,6 +1,8 @@
 import { EMBEDDED_ARTIFACT_DIGESTS } from "./build-constants.js";
+import { CoreFailure } from "./core-failure.js";
 import { buildErrorReport } from "./error-report.js";
 import { decodeUtf8Input, JsonScanError, scanJsonText } from "./json-scan.js";
+import { runPhase5 } from "./phase5.js";
 
 const INPUT_ROLES = [
   "context",
@@ -94,12 +96,14 @@ function snapshotCoreRequest(coreRequest) {
   return snapshots;
 }
 
-function failure(code) {
+function failure(code, violations = []) {
+  const governingCode =
+    violations.length > 100 ? "TOO_MANY_VIOLATIONS" : code;
   return {
     status: "error",
-    statusLine: `status=error code=${code}\n`,
-    code,
-    errorReport: buildErrorReport({ code, violations: [] }),
+    statusLine: `status=error code=${governingCode}\n`,
+    code: governingCode,
+    errorReport: buildErrorReport({ code, violations }),
   };
 }
 
@@ -127,6 +131,7 @@ export async function compileCore(coreRequest) {
     }
   }
 
+  const parsedInputs = {};
   for (const role of STRUCTURAL_INPUT_ROLES) {
     const [limit, tooLargeCode] = INPUT_LIMITS[role];
     if (inputs[role].byteLength > limit) {
@@ -142,7 +147,7 @@ export async function compileCore(coreRequest) {
 
     if (JSON_INPUT_ROLES.has(role)) {
       try {
-        scanJsonText(decoded.text);
+        parsedInputs[role] = scanJsonText(decoded.text).value;
       } catch (error) {
         if (
           error instanceof JsonScanError &&
@@ -153,9 +158,21 @@ export async function compileCore(coreRequest) {
         }
         return failure("INTERNAL_COMPILER_ERROR");
       }
+    } else {
+      parsedInputs[role] = decoded.text;
     }
   }
 
+  try {
+    await runPhase5(parsedInputs);
+  } catch (error) {
+    if (error instanceof CoreFailure) {
+      return failure(error.code, error.violations);
+    }
+    return failure("INTERNAL_COMPILER_ERROR");
+  }
+
+  // Stages 04–08 are deliberately introduced by Phases 6–8.
   return failure("INTERNAL_COMPILER_ERROR");
 }
 

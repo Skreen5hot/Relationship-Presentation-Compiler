@@ -51,9 +51,11 @@ container stack at depth 64. User-profile and source tests cover duplicate
 members, nested scopes, invalid UTF-8, exact and over-limit sizes, BOM handling,
 and depth 64/65.
 
-Structurally conforming inputs currently return deterministic
-`INTERNAL_COMPILER_ERROR` because C3–C8 are intentionally absent. That sentinel
-is Phase 2 scaffold behavior, not a v1.0 release behavior or success claim.
+At the Phase 2 exit, structurally conforming inputs returned deterministic
+`INTERNAL_COMPILER_ERROR` because C3–C8 were absent. Phase 5 now carries the
+canonical fixture through C3–C6 and Stages 01–03 before returning the same
+explicit boundary sentinel for the still-absent Stage 04 onward. The sentinel
+remains an incremental-build behavior, not a v1.0 release success claim.
 
 ## CPS enforcement
 
@@ -62,8 +64,9 @@ with the Acorn-based closed policy. Negative seeds cover Node built-ins,
 process/Buffer, DOM and network capabilities, time and randomness, locale APIs,
 storage, timers, dynamic code/import, WebAssembly, and worker creation.
 
-The binding harness executes a twelve-case functional corpus in a Node Worker and
-a real Chromium Worker with prohibited globals replaced by throwing traps.
+The binding harness executes its functional corpus, now including the Phase 5
+JSON-LD and closed-world path, in a Node Worker and a real Chromium Worker with
+prohibited globals replaced by throwing traps.
 `TextDecoder`, `TextEncoder`, and WebCrypto are instrumented. Host WebCrypto
 internals are calibrated before observations are cleared, so evidence records
 only the core calls. The canonical structural case observes exactly five

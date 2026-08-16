@@ -80,7 +80,7 @@ test("phase C1 binds all five locked input byte sequences", async () => {
 test("phase C2 applies byte limits before decoding in fixed input order", async () => {
   const exactSource = cloneCoreRequest(canonicalRequest);
   exactSource.inputs.source = bytes(`{}${" ".repeat(1024 * 1024 - 2)}`);
-  assertFailure(await compileCore(exactSource), "INTERNAL_COMPILER_ERROR");
+  assert.equal((await compileCore(exactSource)).code, "FIXTURE_CONTRACT_FAILED");
 
   const oversizedSource = cloneCoreRequest(canonicalRequest);
   oversizedSource.inputs.source = bytes(`{}${" ".repeat(1024 * 1024 - 1)}`);

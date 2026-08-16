@@ -13,12 +13,22 @@ function bytes(text) {
 }
 
 export async function canonicalCoreRequest() {
-  const [context, contract, canonicalProfile, carrierStyle, carrierNavigation] =
+  const [
+    context,
+    contract,
+    canonicalProfile,
+    source,
+    request,
+    carrierStyle,
+    carrierNavigation,
+  ] =
     await Promise.all(
       [
         "contexts/poc.context.jsonld",
         "contract/person-association-contract.jsonld",
         "profiles/two-slide-explainer.jsonld",
+        "fixtures/relationship-42.jsonld",
+        "fixtures/relationship-42-request.txt",
         "carrier/presentation.css",
         "carrier/navigation.js",
       ].map(async (path) => new Uint8Array(await readFile(resolve(repositoryRoot, path)))),
@@ -30,10 +40,8 @@ export async function canonicalCoreRequest() {
       contract,
       canonicalProfile,
       userProfile: new Uint8Array(canonicalProfile),
-      source: bytes('{"@context":"../contexts/poc.context.jsonld"}\n'),
-      request: bytes(
-        "Create a two-slide presentation explaining Relationship 42 to a general audience.\n",
-      ),
+      source,
+      request,
       carrierStyle,
       carrierNavigation,
     },

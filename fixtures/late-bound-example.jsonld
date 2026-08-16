@@ -1,0 +1,40 @@
+{
+  "@context": "../contexts/poc.context.jsonld",
+  "@graph": [
+    {
+      "@id": "https://fixtures.example.test/late/association-omega",
+      "@type": ["PersonAssociation", "RelationalQuality"],
+      "specificallyDependsOn": [
+        "https://fixtures.example.test/late/person-zed",
+        "https://fixtures.example.test/late/person-mira"
+      ]
+    },
+    {
+      "@id": "https://fixtures.example.test/late/person-zed",
+      "@type": "Person",
+      "differentFrom": "https://fixtures.example.test/late/person-mira"
+    },
+    {
+      "@id": "https://fixtures.example.test/late/person-mira",
+      "@type": "Person"
+    },
+    {
+      "@id": "https://fixtures.example.test/late/identifier-omega",
+      "@type": "NonNameIdentifier",
+      "designates": "https://fixtures.example.test/late/association-omega",
+      "label": "Alliance Omega"
+    },
+    {
+      "@id": "https://fixtures.example.test/late/name-zed",
+      "@type": "DesignativeName",
+      "designates": "https://fixtures.example.test/late/person-zed",
+      "label": "Zed"
+    },
+    {
+      "@id": "https://fixtures.example.test/late/name-mira",
+      "@type": "DesignativeName",
+      "designates": "https://fixtures.example.test/late/person-mira",
+      "label": "Mira"
+    }
+  ]
+}

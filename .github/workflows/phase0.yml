@@ -1,4 +1,4 @@
-name: Phase 0 through 4 gates
+name: Phase 0 through 5 gates
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase0-phase4-${{ github.workflow }}-${{ github.ref }}
+  group: phase0-phase5-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -55,6 +55,9 @@ jobs:
       - name: Reproduce and verify the locked browser core bundle
         run: npm run test:phase4:node
 
+      - name: Verify request, resolution, closed-world contract, and Stages 01–03
+        run: npm run test:phase5:node
+
   chromium-worker:
     name: Chromium Worker equivalence
     runs-on: ubuntu-latest
@@ -88,3 +91,6 @@ jobs:
 
       - name: Run the supervised reference Browser host
         run: npm run test:phase4:browser
+
+      - name: Run Phase 5 semantic equivalence through the Chromium Worker host
+        run: npm run test:phase5:browser

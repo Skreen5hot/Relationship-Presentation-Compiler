@@ -1,0 +1,40 @@
+{
+  "@context": "../contexts/poc.context.jsonld",
+  "@graph": [
+    {
+      "@id": "https://example.org/relationship-presentation-poc/kg/relationship-42",
+      "@type": ["PersonAssociation", "RelationalQuality"],
+      "specificallyDependsOn": [
+        "https://example.org/relationship-presentation-poc/kg/alice",
+        "https://example.org/relationship-presentation-poc/kg/bob"
+      ]
+    },
+    {
+      "@id": "https://example.org/relationship-presentation-poc/kg/alice",
+      "@type": "Person",
+      "differentFrom": "https://example.org/relationship-presentation-poc/kg/bob"
+    },
+    {
+      "@id": "https://example.org/relationship-presentation-poc/kg/bob",
+      "@type": "Person"
+    },
+    {
+      "@id": "https://example.org/relationship-presentation-poc/kg/relationship-42-identifier",
+      "@type": "NonNameIdentifier",
+      "designates": "https://example.org/relationship-presentation-poc/kg/relationship-42",
+      "label": "Relationship 42"
+    },
+    {
+      "@id": "https://example.org/relationship-presentation-poc/kg/alice-name",
+      "@type": "DesignativeName",
+      "designates": "https://example.org/relationship-presentation-poc/kg/alice",
+      "label": "Alice"
+    },
+    {
+      "@id": "https://example.org/relationship-presentation-poc/kg/bob-name",
+      "@type": "DesignativeName",
+      "designates": "https://example.org/relationship-presentation-poc/kg/bob",
+      "label": "Bob"
+    }
+  ]
+}

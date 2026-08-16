@@ -1,0 +1,58 @@
+{
+  "@context": "./poc.context.jsonld",
+  "@id": "run:contract-validation",
+  "@type": "projection:ContractValidation",
+  "contractVersion": "person-association-contract-v1.0",
+  "validatedRoot": "https://example.org/relationship-presentation-poc/kg/relationship-42",
+  "status": "projection:Passed",
+  "check": [
+    {
+      "@id": "run:check-exactly-one-name-per-participant",
+      "@type": "projection:ValidationCheck",
+      "code": "EXACTLY_ONE_NAME_PER_PARTICIPANT",
+      "passed": true
+    },
+    {
+      "@id": "run:check-exactly-two-person-participants",
+      "@type": "projection:ValidationCheck",
+      "code": "EXACTLY_TWO_PERSON_PARTICIPANTS",
+      "passed": true
+    },
+    {
+      "@id": "run:check-no-owl-sameas-among-selected",
+      "@type": "projection:ValidationCheck",
+      "code": "NO_OWL_SAMEAS_AMONG_SELECTED",
+      "passed": true
+    },
+    {
+      "@id": "run:check-no-source-graph-contamination",
+      "@type": "projection:ValidationCheck",
+      "code": "NO_SOURCE_GRAPH_CONTAMINATION",
+      "passed": true
+    },
+    {
+      "@id": "run:check-participants-asserted-different",
+      "@type": "projection:ValidationCheck",
+      "code": "PARTICIPANTS_ASSERTED_DIFFERENT",
+      "passed": true
+    },
+    {
+      "@id": "run:check-resolved-entity-is-bfo-relational-quality",
+      "@type": "projection:ValidationCheck",
+      "code": "RESOLVED_ENTITY_IS_BFO_RELATIONAL_QUALITY",
+      "passed": true
+    },
+    {
+      "@id": "run:check-resolved-entity-is-person-association",
+      "@type": "projection:ValidationCheck",
+      "code": "RESOLVED_ENTITY_IS_PERSON_ASSOCIATION",
+      "passed": true
+    },
+    {
+      "@id": "run:check-selected-individuals-pairwise-distinct",
+      "@type": "projection:ValidationCheck",
+      "code": "SELECTED_INDIVIDUALS_PAIRWISE_DISTINCT",
+      "passed": true
+    }
+  ]
+}

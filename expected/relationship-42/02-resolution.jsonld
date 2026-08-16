@@ -1,0 +1,10 @@
+{
+  "@context": "./poc.context.jsonld",
+  "@id": "run:resolution",
+  "@type": "projection:ScopeResolution",
+  "requestedDesignatorText": "Relationship 42",
+  "sourceScope": "https://example.org/relationship-presentation-poc/kg/relationship-42",
+  "resolvedBy": "https://example.org/relationship-presentation-poc/kg/relationship-42-identifier",
+  "resolutionStatus": "projection:UniqueMatch",
+  "resolutionRule": "rule:exact-designator-match-v1-0"
+}

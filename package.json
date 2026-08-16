@@ -35,7 +35,10 @@
     "test:phase4:node": "npm run check:runtime && npm run check:phase4:generated && node --test test/phase4/browser-lock.test.mjs",
     "test:phase4:browser": "npm run check:phase4:generated && node --test test/phase4/browser-host.test.mjs",
     "test:phase4": "npm run test:phase4:node && npm run test:phase4:browser",
-    "test": "npm run test:phase0 && npm run test:phase1 && npm run test:phase2 && npm run test:phase3 && npm run test:phase4"
+    "test:phase5:node": "npm run check:runtime && npm run build:phase2 && node --test test/phase5/contract-negative.test.mjs test/phase5/jsonld-guards.test.mjs test/phase5/request-profile.test.mjs test/phase5/stages.test.mjs",
+    "test:phase5:browser": "npm run check:phase4:generated && node --test test/phase5/browser-equivalence.test.mjs",
+    "test:phase5": "npm run test:phase5:node && npm run test:phase5:browser",
+    "test": "npm run test:phase0 && npm run test:phase1 && npm run test:phase2 && npm run test:phase3 && npm run test:phase4 && npm run test:phase5"
   },
   "dependencies": {
     "fs-native-extensions": "1.5.0",

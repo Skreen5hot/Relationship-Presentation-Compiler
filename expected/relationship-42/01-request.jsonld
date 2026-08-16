@@ -1,0 +1,12 @@
+{
+  "@context": "./poc.context.jsonld",
+  "@id": "run:request",
+  "@type": "projection:ProjectionRequest",
+  "targetArtifact": "projection:Presentation",
+  "requestedDesignatorText": "Relationship 42",
+  "communicativeGoal": "projection:Explain",
+  "audience": "projection:GeneralAudience",
+  "slideLimit": 2,
+  "outputFormat": "projection:HTML",
+  "normalizedBy": "rule:controlled-request-v1-0"
+}

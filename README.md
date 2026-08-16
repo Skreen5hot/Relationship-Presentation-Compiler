@@ -6,13 +6,16 @@ stages.
 
 ## Status
 
-Phases 0 through 4 establish the Edge-Canonical substrate, immutable release
-inputs, core boundary, both host shells, and recoverable Node publication:
+Phases 0 through 5 establish the Edge-Canonical substrate, immutable release
+inputs, core boundary, both host shells, recoverable Node publication, and the
+closed-world semantic front half:
 locked tools and schemas, a CPS-scanned JSON-LD slice, normative static inputs,
-pinned ontology evidence, a reproducible CycloneDX 1.7 SBOM, the C0–C2 core,
+pinned ontology evidence, a reproducible CycloneDX 1.7 SBOM, the C0–C6 core,
 OS-locked journaled publication, and a deterministic SRI-locked browser bundle
-executed through a supervised dedicated Worker. Semantic compilation and the
-GitHub Pages demo are intentionally added later.
+executed through a supervised dedicated Worker. Request normalization, exact
+resolution, profile equality, contract validation, and Stages 01–03 are now
+implemented. Narrative, projection, rendering, manifests, and the GitHub Pages
+demo are intentionally added later.
 
 The normative design is
 [`relationship-presentation-spec-v1_0.md`](relationship-presentation-spec-v1_0.md).
@@ -23,7 +26,8 @@ hashes, and deferrals are recorded in
 evidence is in [`docs/phase-2-evidence.md`](docs/phase-2-evidence.md). Phase 3
 publication evidence is in
 [`docs/phase-3-evidence.md`](docs/phase-3-evidence.md). Phase 4 browser-host
-evidence is in [`docs/phase-4-evidence.md`](docs/phase-4-evidence.md).
+evidence is in [`docs/phase-4-evidence.md`](docs/phase-4-evidence.md). Phase 5
+semantic evidence is in [`docs/phase-5-evidence.md`](docs/phase-5-evidence.md).
 
 ## Phase 0 verification
 
@@ -103,3 +107,21 @@ bundler, and engine pins in `browser-host.lock.json`. The browser gate uses the
 pinned real Chromium engine to exercise the reference Worker host, 40-second
 default supervision contract, timeout and abnormal-worker mappings, explicit
 shutdown, and Node-equivalent core results.
+
+## Phase 5 verification
+
+Run the request, JSON-LD trust, profile, resolution, closed-world contract, and
+Stage 01–03 gates:
+
+```text
+npm run test:phase5:node
+npm run test:phase5:browser
+```
+
+The Node suite derives the first three golden artifacts from the canonical
+fixture, validates a late-bound fixture, exercises inert metamorphic changes,
+and covers the Phase 5 negative matrix. The browser suite sends representative
+C3–C6 cases through the supervised Worker host in pinned Chromium and requires
+byte-identical status lines and error reports. A conforming fixture still ends
+with `INTERNAL_COMPILER_ERROR` at the explicit Stage 04 boundary until Phase 6
+adds the next semantic stages.

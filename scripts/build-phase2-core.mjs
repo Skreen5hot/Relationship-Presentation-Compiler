@@ -11,6 +11,10 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputDirectory = resolve(repositoryRoot, "build", "phase2");
 const coreOutputName = "relationship-presentation-core.skeleton.bundle.mjs";
 const workerOutputName = "poison-worker.bundle.mjs";
+const failClosedEventsShim = resolve(
+  repositoryRoot,
+  "src/core/phase0-shims/fail-closed-events.cjs",
+);
 const artifactLock = JSON.parse(
   await readFile(resolve(repositoryRoot, "artifact.lock.json"), "utf8"),
 );
@@ -38,18 +42,42 @@ assert.deepEqual(Object.keys(embeddedArtifactDigests), [
 
 const coreOptions = {
   absWorkingDir: repositoryRoot,
+  alias: {
+    "lru-cache": resolve(
+      repositoryRoot,
+      "src/core/phase0-shims/deterministic-lru.cjs",
+    ),
+    "rdf-canonize": resolve(
+      repositoryRoot,
+      "src/core/phase0-shims/identifier-issuer.cjs",
+    ),
+  },
   bundle: true,
   charset: "utf8",
   define: {
     __RPC_ARTIFACT_DIGESTS__: JSON.stringify(embeddedArtifactDigests),
   },
-  entryPoints: ["./src/core/core.js"],
+  entryPoints: [resolve(repositoryRoot, "src/core/core.js")],
   format: "esm",
   legalComments: "none",
   metafile: true,
   minify: false,
   outfile: coreOutputName,
   platform: "browser",
+  plugins: [
+    {
+      name: "jsonld-cps-boundary",
+      setup(buildContext) {
+        buildContext.onResolve({ filter: /^\.\/events$/ }, (arguments_) => {
+          const resolveDirectory = arguments_.resolveDir.replaceAll("\\", "/");
+          if (resolveDirectory.endsWith("/node_modules/jsonld/lib")) {
+            return { path: failClosedEventsShim };
+          }
+          return undefined;
+        });
+      },
+    },
+  ],
   sourcemap: false,
   target: "es2023",
   treeShaking: true,
@@ -81,13 +109,19 @@ for (const inputPath of Object.keys(coreBuild.metafile.inputs)) {
   if (inputPath.startsWith("<define:")) {
     continue;
   }
-  if (!inputPath.startsWith("src/core/")) {
+  if (
+    !inputPath.startsWith("src/core/") &&
+    !inputPath.startsWith("node_modules/jsonld/") &&
+    !inputPath.startsWith("node_modules/canonicalize/")
+  ) {
     throw new Error(`Unexpected Phase 2 core input: ${inputPath}`);
   }
-  assertCpsSource(
-    await readFile(resolve(repositoryRoot, inputPath), "utf8"),
-    inputPath,
-  );
+  if (inputPath.startsWith("src/core/")) {
+    assertCpsSource(
+      await readFile(resolve(repositoryRoot, inputPath), "utf8"),
+      inputPath,
+    );
+  }
 }
 
 await buildTwice(
@@ -95,7 +129,7 @@ await buildTwice(
     absWorkingDir: repositoryRoot,
     bundle: true,
     charset: "utf8",
-    entryPoints: ["./test/phase2/browser-poison-worker.js"],
+    entryPoints: [resolve(repositoryRoot, "test/phase2/browser-poison-worker.js")],
     external: [`./${coreOutputName}`],
     format: "esm",
     legalComments: "none",

@@ -17,6 +17,10 @@ const bundlePath = resolve(
 );
 const lockPath = resolve(repositoryRoot, "browser-host.lock.json");
 const checkMode = process.argv.includes("--check");
+const failClosedEventsShim = resolve(
+  repositoryRoot,
+  "src/core/phase0-shims/fail-closed-events.cjs",
+);
 
 async function readJson(relativePath) {
   const bytes = new Uint8Array(
@@ -54,18 +58,42 @@ assert.deepEqual(Object.keys(embeddedArtifactDigests), [
 
 const buildOptions = {
   absWorkingDir: repositoryRoot,
+  alias: {
+    "lru-cache": resolve(
+      repositoryRoot,
+      "src/core/phase0-shims/deterministic-lru.cjs",
+    ),
+    "rdf-canonize": resolve(
+      repositoryRoot,
+      "src/core/phase0-shims/identifier-issuer.cjs",
+    ),
+  },
   bundle: true,
   charset: "utf8",
   define: {
     __RPC_ARTIFACT_DIGESTS__: JSON.stringify(embeddedArtifactDigests),
   },
-  entryPoints: ["./src/core/core.js"],
+  entryPoints: [resolve(repositoryRoot, "src/core/core.js")],
   format: "esm",
   legalComments: "none",
   metafile: true,
   minify: false,
   outfile: "relationship-presentation-core.bundle.mjs",
   platform: "browser",
+  plugins: [
+    {
+      name: "jsonld-cps-boundary",
+      setup(buildContext) {
+        buildContext.onResolve({ filter: /^\.\/events$/ }, (arguments_) => {
+          const resolveDirectory = arguments_.resolveDir.replaceAll("\\", "/");
+          if (resolveDirectory.endsWith("/node_modules/jsonld/lib")) {
+            return { path: failClosedEventsShim };
+          }
+          return undefined;
+        });
+      },
+    },
+  ],
   sourcemap: false,
   target: "es2023",
   treeShaking: true,
@@ -88,13 +116,19 @@ for (const inputPath of Object.keys(firstBuild.metafile.inputs)) {
   if (inputPath.startsWith("<define:")) {
     continue;
   }
-  if (!inputPath.startsWith("src/core/")) {
+  if (
+    !inputPath.startsWith("src/core/") &&
+    !inputPath.startsWith("node_modules/jsonld/") &&
+    !inputPath.startsWith("node_modules/canonicalize/")
+  ) {
     throw new Error(`Unexpected Phase 4 core input: ${inputPath}`);
   }
-  assertCpsSource(
-    await readFile(resolve(repositoryRoot, inputPath), "utf8"),
-    inputPath,
-  );
+  if (inputPath.startsWith("src/core/")) {
+    assertCpsSource(
+      await readFile(resolve(repositoryRoot, inputPath), "utf8"),
+      inputPath,
+    );
+  }
 }
 
 function digestHex(algorithm, bytes) {
