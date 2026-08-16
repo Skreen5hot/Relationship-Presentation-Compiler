@@ -1,245 +1,175 @@
 # Relationship Presentation Compiler
 
-A deterministic offline compiler that transforms one narrow BFO/CCO-aligned
-source pattern into a two-slide HTML presentation through inspectable JSON-LD
-stages.
+> Data exists in graphs. Content is a projection of that data.
 
-## Status
+The Relationship Presentation Compiler explores a concrete way to fulfil the
+vision of the Semantic Web: publish meaning as machine-readable graphs, then
+project those graphs into the content people use. Structured knowledge remains
+the durable source of meaning while human-facing content is compiled from it as
+a deterministic, inspectable projection.
 
-Phases 0 through 10 establish the Edge-Canonical substrate, immutable release
-inputs, core boundary, both host shells, recoverable Node publication, and the
-closed-world semantic front half:
-locked tools and schemas, a CPS-scanned JSON-LD slice, normative static inputs,
-pinned ontology evidence, a reproducible CycloneDX 1.7 SBOM, the C0–C7 core,
-OS-locked journaled publication, and a deterministic SRI-locked browser bundle
-executed through a supervised dedicated Worker. Request normalization, exact
-resolution, profile equality, contract validation, six-node content selection,
-character provenance, narrative construction, and the target-neutral
-presentation, complete HTML projection, contextual renderer, deterministic
-subset revalidator, diagnostic demo, JCS manifests, fingerprints, validation
-report, ownership sentinel, and byte-map verifier are implemented. A conforming
-core request now returns the complete fourteen-file success result identically
-through the Node and Browser core packagings. The complete Appendix A registry,
-canonical error reports, closed C0–C8 ordering, Node exit classes, and exact
-stdout/stderr status-line behavior now share one failure surface.
-The complete 85-case positive and required-negative corpus now runs through the
-Node host end to end and through the reference Worker in pinned Chromium, with
-the same corpus repeated under poisoned globals. The Node CLI now performs the
-N1–N6 acquisition, attestation, supervision, recoverable publication, and
-verification sequence. Phase 11 retains final release-commit injection and the
-full three-engine release matrix.
+The example is deliberately narrow: a BFO/CCO-aligned relationship graph is
+projected into a two-slide HTML presentation. The presentation is not the
+source of truth and does not contain a second, independently authored version
+of the facts. It is one view of the graph, produced for one audience under one
+explicit projection profile.
 
-The normative design is
-[`relationship-presentation-spec-v1_0.md`](relationship-presentation-spec-v1_0.md).
-Phase 0 choices and rejected alternatives are in
-[`docs/phase-0-decisions.md`](docs/phase-0-decisions.md). Phase 1 provenance,
-hashes, and deferrals are recorded in
-[`docs/phase-1-evidence.md`](docs/phase-1-evidence.md). Phase 2 boundary and CPS
-evidence is in [`docs/phase-2-evidence.md`](docs/phase-2-evidence.md). Phase 3
-publication evidence is in
-[`docs/phase-3-evidence.md`](docs/phase-3-evidence.md). Phase 4 browser-host
-evidence is in [`docs/phase-4-evidence.md`](docs/phase-4-evidence.md). Phase 5
-semantic evidence is in [`docs/phase-5-evidence.md`](docs/phase-5-evidence.md).
-Phase 6 selection and provenance evidence is in
-[`docs/phase-6-evidence.md`](docs/phase-6-evidence.md).
-Phase 7 projection, rendering, and deployment evidence is in
-[`docs/phase-7-evidence.md`](docs/phase-7-evidence.md). Phase 8 manifest and
-fingerprint evidence is in
-[`docs/phase-8-evidence.md`](docs/phase-8-evidence.md). Phase 9 failure-surface
-evidence is in [`docs/phase-9-evidence.md`](docs/phase-9-evidence.md). Phase 10
-full-corpus, Node-host, and dual-host evidence is in
-[`docs/phase-10-evidence.md`](docs/phase-10-evidence.md).
+## The idea
 
-## Phase 0 verification
+Most web content is authored as the final document. Meaning is embedded in
+pages, slides, and prose, so another application must scrape or reinterpret
+that content to recover the underlying data.
 
-Use Node 24.19.0 and npm 11.17.0:
+This POC reverses that relationship:
+
+- knowledge is authored as an RDF graph expressed in JSON-LD;
+- a semantic contract defines the graph pattern that is valid for this use;
+- a projection profile states how valid graph data should become content;
+- the compiler resolves, validates, selects, and traces the required facts;
+- the presentation is generated from a target-neutral semantic model;
+- manifests and fingerprints make the result independently verifiable.
+
+The graph can therefore remain authoritative while presentations, pages,
+reports, or other future views become replaceable projections. Changing a view
+does not require changing the underlying facts. Changing a fact produces a new,
+traceable projection.
+
+```mermaid
+flowchart LR
+  G["JSON-LD knowledge graph"] --> V["Resolve and validate"]
+  P["Projection profile"] --> V
+  C["Semantic contract"] --> V
+  V --> S["Canonical semantic stages"]
+  S --> N["Narrative and presentation model"]
+  N --> H["Accessible HTML presentation"]
+  S --> M["Provenance, manifests, and fingerprints"]
+  H --> M
+```
+
+## What the POC understands
+
+The supported graph describes exactly one relationship pattern:
+
+- one `rp:PersonAssociation`;
+- one matching CCO Non-Name Identifier;
+- exactly two distinct CCO Persons;
+- exactly one CCO Designative Name for each Person;
+- one supported two-slide explainer profile.
+
+A controlled natural-language request identifies the association to explain.
+The compiler expands the JSON-LD with an offline, approved context, resolves
+the identifier, validates the closed-world contract, selects six semantic
+nodes, constructs a narrative, and projects the result into accessible HTML.
+
+This narrow scope is intentional. The project is testing the architecture of
+graph-to-content compilation, not claiming to be a general ontology reasoner,
+presentation engine, or natural-language generation system.
+
+## Why compile content from graphs?
+
+Graph-first content projection makes several useful properties possible:
+
+- **Traceability:** source-derived text identifies the graph nodes from which
+  its characters were derived.
+- **Consistency:** the graph is validated before any presentation is emitted.
+- **Determinism:** identical inputs produce identical bytes and fingerprints.
+- **Separation of concerns:** facts, semantic constraints, projection intent,
+  and visual carriers remain distinct inputs.
+- **Portability:** the same edge-canonical core runs under Node.js and in a
+  dedicated browser Worker without changing the compilation logic.
+- **Auditability:** every intermediate semantic stage is emitted as canonical
+  JSON-LD rather than hidden inside a rendering pipeline.
+- **Offline operation:** compilation performs no remote context resolution or
+  runtime network acquisition.
+
+The larger concept is that a Semantic Web graph should be able to drive useful
+human experiences directly. Content becomes a trustworthy interface to the
+graph instead of an opaque container from which meaning must later be mined.
+
+## Compilation model
+
+The compiler consumes eight byte inputs:
+
+- the source graph, controlled request, and user projection profile;
+- the locked context, semantic contract, canonical profile, stylesheet, and
+  navigation payload.
+
+It produces a fourteen-file artifact set containing:
+
+- seven inspectable JSON-LD stages for request, resolution, validation,
+  selection, narrative, presentation, and HTML projection;
+- the accessible `presentation.html` and a sandboxed diagnostic `demo.html`;
+- core and distribution manifests, a validation report, the approved context,
+  and an ownership sentinel.
+
+The output manifests bind every canonical byte with SHA-256 fingerprints. A
+consumer can verify the projection without trusting the filesystem or host that
+created it.
+
+## See the projection
+
+The verified example presentation and its intermediate artifacts are published
+on [GitHub Pages](https://skreen5hot.github.io/Relationship-Presentation-Compiler/).
+The site is a static view of the compiler output; compilation itself remains
+local and offline.
+
+## Run it locally
+
+Use Node.js 24.19.0 and npm 11.17.0, then install the locked dependency graph:
 
 ```text
 npm ci
-npm run test:phase0:node
+```
+
+Compile the canonical example:
+
+```text
+node index.js
+```
+
+This reads the repository's example graph, request, and profile and publishes
+the verified artifact set to `dist`.
+
+Compile explicit inputs:
+
+```text
+node index.js \
+  --source fixtures/relationship-42.jsonld \
+  --request fixtures/relationship-42-request.txt \
+  --profile profiles/two-slide-explainer.jsonld \
+  --out ../relationship-presentation-output \
+  --replace
+```
+
+The Node host validates its runtime and locked evidence, enforces input and
+output trust boundaries, runs the core in a supervised Worker, publishes through
+an OS-locked recoverable staging protocol, and verifies the result after
+publication.
+
+## Verify the implementation
+
+Install the pinned Chromium shell once, then run the complete Node and browser
+conformance suite:
+
+```text
 node node_modules/playwright/cli.js install --only-shell chromium
-npm run test:phase0:browser
+npm test
 ```
 
-CI runs the Node gates on Windows and Ubuntu and the Worker gate in pinned
-Chromium. The Phase 10-verified artifact set and diagnostic site deploy through
-GitHub Actions to
-[GitHub Pages](https://skreen5hot.github.io/Relationship-Presentation-Compiler/).
+The suite covers canonical, late-bound, generated, metamorphic, hostile, and
+invalid graphs; exact structural boundaries; deterministic failure ordering;
+accessibility and navigation; independent-process determinism; and byte-level
+equivalence between the Node host and a real browser Worker.
 
-## Phase 1 verification
+## Scope and design
 
-Generate or verify all Phase 1 release evidence with the exact runtime:
+This repository is a POC for deterministic semantic projection. It does not
+provide a hosted compilation service, accept untrusted uploads, perform general
+RDF inference, or support arbitrary graph shapes and presentation templates.
+Those capabilities would require deliberate contracts of their own rather than
+an expansion of this closed proof surface.
 
-```text
-npm run generate:phase1
-npm run test:phase1
-```
-
-`generate:phase1` hashes the five locked artifacts, verifies the three ontology
-files against their pinned upstream Git blobs, and emits a timestamp-free,
-serial-free CycloneDX 1.7 SBOM from the complete `package-lock.json` graph.
-`test:phase1` regenerates all three outputs in check mode before running schema,
-provenance, semantic-content, carrier-navigation, and SBOM-coverage tests.
-
-## Phase 2 verification
-
-Build and verify the C0–C2 core skeleton with the exact runtime:
-
-```text
-npm run test:phase2:node
-npm run test:phase2:browser
-```
-
-The build injects the five `artifact.lock.json` digests, emits a reproducible
-browser-compatible ESM bundle, and scans its complete module graph against the
-closed Common Platform Surface. The Node and real-Chromium suites execute the
-same hostile corpus with prohibited globals poisoned and SHA-256/TextDecoder
-usage instrumented.
-
-## Phase 3 verification
-
-Run the Node publication-safety and crash-recovery matrix:
-
-```text
-npm run test:phase3
-```
-
-The suite exercises fresh publication, existing-output rejection, exact v1.0
-ownership recognition, prior-lineage rejection, output-path safety, immediate
-cross-process lock exclusion, staged replacement, recovery after process death
-at every journal boundary, corrupt-journal fail-closed behavior, and detached
-failure-report placement. It runs on both Windows and Ubuntu in CI.
-
-Phase 3 isolated publication safety from semantic construction. Phase 10 now
-integrates this substrate into the end-to-end Node CLI and verifies the real
-canonical fourteen-file artifact set after publication.
-
-## Phase 4 verification
-
-Reproduce the committed browser bundle and run the host gates:
-
-```text
-npm run test:phase4:node
-npm run test:phase4:browser
-```
-
-The Node gate rebuilds the single ESM core twice, verifies byte identity against
-the committed bundle, checks its CPS surface, and validates SHA-256, SRI,
-bundler, and engine pins in `browser-host.lock.json`. The browser gate uses the
-pinned real Chromium engine to exercise the reference Worker host, 40-second
-default supervision contract, timeout and abnormal-worker mappings, explicit
-shutdown, and Node-equivalent core results.
-
-## Phase 5 verification
-
-Run the request, JSON-LD trust, profile, resolution, closed-world contract, and
-Stage 01–03 gates:
-
-```text
-npm run test:phase5:node
-npm run test:phase5:browser
-```
-
-The Node suite derives the first three golden artifacts from the canonical
-fixture, validates a late-bound fixture, exercises inert metamorphic changes,
-and covers the Phase 5 negative matrix. The browser suite sends representative
-C3–C6 cases through the supervised Worker host in pinned Chromium and requires
-byte-identical status lines and error reports. This was the historical Phase 5
-boundary; the current core continues through the complete Phase 8 success
-result.
-
-## Phase 6 verification
-
-Run the content-selection, provenance, narrative, presentation, and Worker
-equivalence gates:
-
-```text
-npm run test:phase6:node
-npm run test:phase6:browser
-```
-
-The Node suite requires exact bytes for all six stage goldens, proves
-late-bound and metamorphic behavior, exercises nonrecursive profile templates,
-and independently reconstructs source-derived text from its declared
-`derivedFrom` nodes. The Chromium suite executes canonical, late-bound, and
-hostile-placeholder inputs through the same supervised Worker bundle. A
-conforming fixture historically reached the explicit Stage 07 boundary; the
-current core continues through the complete Phase 8 success result.
-
-## Phase 7 verification
-
-Run the Stage 07 projection, renderer, subset-revalidation, full-HTML parsing,
-accessibility, navigation, demo, and real-browser gates:
-
-```text
-npm run test:phase7:node
-npm run test:phase7:browser
-```
-
-The Node gate asserts exact Stage 01–07 and presentation goldens, carrier-byte
-identity, a parser/serializer round trip, the closed adversarial grammar,
-hostile-label escaping, JSDOM accessibility and navigation, and deterministic
-site assembly. The Chromium gate checks the same presentation under a real
-HTML5 engine, including accessible names, hidden semantics, native keyboard
-activation, focus movement, sandboxed `srcdoc`, and network silence.
-
-## Phase 8 verification
-
-Run the manifest, fingerprint, verifier, golden, site, and host-invariance gates:
-
-```text
-npm run test:phase8:node
-npm run test:phase8:browser
-```
-
-The Node gate requires the exact fourteen-file golden byte map, validates both
-JCS fingerprints and every recorded hash, checks the core manifest for absence
-of host evidence, and proves that mutation of any artifact plus extra or missing
-entries is rejected. The Chromium gate requires the supervised Worker to return
-the same fingerprints, status line, filenames, and every artifact byte as the
-Node packaging. GitHub Pages publishes the verified byte map and uses a
-Pages-only index adapter: because Pages refuses dot-prefixed URLs, the homepage
-links the canonical sentinel through a byte-identical
-`ownership-sentinel.json` alias. `demo.html` and the core-returned fourteen-file
-set remain unchanged.
-
-## Phase 9 verification
-
-Run the unified failure-surface and dual-host gates:
-
-```text
-npm run test:phase9:node
-npm run test:phase9:browser
-```
-
-The Node gate checks all 49 Appendix A codes against an independent registry,
-including their host applicability, canonical report shape, exact LF status
-line, and exit class. It also proves violation ordering and truncation,
-success-line stdout discipline, malformed-result rejection, and combined-defect
-ordering from C0 through C6. The Chromium gate repeats representative C0–C6
-failures through the supervised Worker and verifies timeout, abnormal-worker,
-noncanonical-status, and noncanonical-report mappings byte-for-byte.
-
-## Phase 10 verification
-
-Run the completed Node-host and dual-host conformance suites:
-
-```text
-npm run test:phase10:node
-npm run test:phase10:browser
-```
-
-The Node gate verifies the generated development runtime lock, exact CLI,
-N1–N6 host ordering, lock mutations, input identity and path trust, supervised
-Worker outcomes, publication and post-publication verification, eight seeded
-generated fixtures, exact structural boundaries, the full 85-case corpus, and
-independent-process determinism. The Chromium gate executes that same corpus
-through the reference Worker host. Both environments repeat the complete
-functional corpus with banned globals poisoned and require SHA-256-only digest
-calls plus fatal UTF-8 decoders. Run `npm test` for the complete Phase 0–10
-suite.
-
-The committed `runtime.lock.json` is development evidence and therefore uses
-the specified forty-zero `sourceCommit` sentinel. Phase 11 replaces it with the
-release commit, executes the Firefox and WebKit baselines in addition to
-Chromium, and publishes the final release envelope.
+The normative architecture and conformance requirements are defined in
+[`relationship-presentation-spec-v1_0.md`](relationship-presentation-spec-v1_0.md).
+Design decisions and implementation evidence are retained in [`docs/`](docs/)
+for readers auditing how the POC establishes its claims.
