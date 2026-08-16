@@ -1,0 +1,42 @@
+{
+  "lockVersion": "runtime-lock-v1.0",
+  "node": {
+    "version": "24.19.0",
+    "releaseLine": "24.x",
+    "releaseStatusAtSpecification": "Active LTS"
+  },
+  "packageManager": {
+    "name": "npm",
+    "version": "11.17.0"
+  },
+  "jsonLdProcessor": {
+    "package": "jsonld",
+    "version": "9.0.0",
+    "integrity": "sha512-pjMIdkXfC1T2wrX9B9i2uXhGdyCmgec3qgMht+TDj+S0qX3bjWMQUfL7NeqEhuRTi8G5ESzmL9uGlST7nzSEWg=="
+  },
+  "domTestImplementation": {
+    "package": "jsdom",
+    "version": "30.0.1",
+    "integrity": "sha512-52v7mUVUfNQVYYqE1lcdaymWL0njO7lTLUog6ZvW2U5KsbiLk/GnZlVJ+qx0xfNJZ6Gn+KSpPNE52vurbxZwrA=="
+  },
+  "filesystemLock": {
+    "package": "fs-native-extensions",
+    "version": "1.5.0",
+    "integrity": "sha512-nuZLFm9mGCxvyi7Llww/J4OyifKCS21nEUTAmnlTZp3FObPOvA32aCedCmt4Z+8yk+caqfClNaSCfn/P7T7FLQ=="
+  },
+  "compiler": {
+    "name": "relationship-presentation-poc",
+    "version": "1.0.0",
+    "sourceCommit": "0000000000000000000000000000000000000000"
+  },
+  "packageLockSha256": "f17ca9b9f5d9e8336528413e8f779da86e3d7c6d608e5af7d48a471e3f26ec97",
+  "artifactLockSha256": "e07f9556b1259d04360c4cdf5f73924763f4b8058c69dd6340c2e107eb8b833e",
+  "ontologyLockSha256": "89bfd3b5db441bec8e5107f9d7c2b395a238bdd7a93fad2856e490b782ffed1b",
+  "sbom": {
+    "path": "sbom.json",
+    "format": "CycloneDX JSON",
+    "specVersion": "1.7",
+    "mediaType": "application/vnd.cyclonedx+json; version=1.7",
+    "sha256": "1969dc896254f17ef191aeea728d321b6055587dab820d951efcc01623b52659"
+  }
+}

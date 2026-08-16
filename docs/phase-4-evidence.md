@@ -58,8 +58,11 @@ profile, context, contract, and contamination cases. Phases 6–7 add canonical,
 late-bound, hostile-placeholder, projection, carrier, and revalidation paths.
 The canonical request now passes C3–C8 and returns the complete fourteen-file
 Phase 8 success result. Phase 9 additionally closes status-line and report
-validation at the B2 handoff. Equivalence asserts both fingerprints, the status
-line, the filename set, and every artifact byte.
+validation at the B2 handoff. Phase 10 executes all 20 positive and 65 required
+negative cases through the reference host in real Chromium, including the C0
+exception, and repeats the full corpus with prohibited globals poisoned.
+Equivalence asserts both fingerprints, the status line, the filename set, every
+artifact byte, and byte-identical error reports.
 
 Separate Worker fixtures prove timeout termination, thrown-worker failure,
 malformed-result rejection, structured-clone rejection, active-work shutdown,

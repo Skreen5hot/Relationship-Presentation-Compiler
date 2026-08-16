@@ -73,7 +73,8 @@ residue.
 non-file report targets and never writes inside a published directory.
 
 Phase 3 fixtures contain the required sentinel and manifest recognition fields
-but deliberately do not claim valid semantic fingerprints. Full distribution
-and core-manifest hash verification becomes binding when later phases produce
-the real artifact set. The end-to-end CLI is likewise not claimed by this
-substrate spike.
+but deliberately do not claim valid semantic fingerprints. Phase 8 made full
+distribution and core-manifest hash verification binding; Phase 10 integrates
+the substrate into the end-to-end CLI, publishes the real artifact set, and
+performs post-publication byte-map verification. Those later claims do not
+retroactively broaden the isolated Phase 3 spike.

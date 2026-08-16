@@ -6,7 +6,7 @@ stages.
 
 ## Status
 
-Phases 0 through 9 establish the Edge-Canonical substrate, immutable release
+Phases 0 through 10 establish the Edge-Canonical substrate, immutable release
 inputs, core boundary, both host shells, recoverable Node publication, and the
 closed-world semantic front half:
 locked tools and schemas, a CPS-scanned JSON-LD slice, normative static inputs,
@@ -22,6 +22,12 @@ core request now returns the complete fourteen-file success result identically
 through the Node and Browser core packagings. The complete Appendix A registry,
 canonical error reports, closed C0–C8 ordering, Node exit classes, and exact
 stdout/stderr status-line behavior now share one failure surface.
+The complete 85-case positive and required-negative corpus now runs through the
+Node host end to end and through the reference Worker in pinned Chromium, with
+the same corpus repeated under poisoned globals. The Node CLI now performs the
+N1–N6 acquisition, attestation, supervision, recoverable publication, and
+verification sequence. Phase 11 retains final release-commit injection and the
+full three-engine release matrix.
 
 The normative design is
 [`relationship-presentation-spec-v1_0.md`](relationship-presentation-spec-v1_0.md).
@@ -40,7 +46,9 @@ Phase 7 projection, rendering, and deployment evidence is in
 [`docs/phase-7-evidence.md`](docs/phase-7-evidence.md). Phase 8 manifest and
 fingerprint evidence is in
 [`docs/phase-8-evidence.md`](docs/phase-8-evidence.md). Phase 9 failure-surface
-evidence is in [`docs/phase-9-evidence.md`](docs/phase-9-evidence.md).
+evidence is in [`docs/phase-9-evidence.md`](docs/phase-9-evidence.md). Phase 10
+full-corpus, Node-host, and dual-host evidence is in
+[`docs/phase-10-evidence.md`](docs/phase-10-evidence.md).
 
 ## Phase 0 verification
 
@@ -54,7 +62,7 @@ npm run test:phase0:browser
 ```
 
 CI runs the Node gates on Windows and Ubuntu and the Worker gate in pinned
-Chromium. The Phase 9-verified artifact set and diagnostic site deploy through
+Chromium. The Phase 10-verified artifact set and diagnostic site deploy through
 GitHub Actions to
 [GitHub Pages](https://skreen5hot.github.io/Relationship-Presentation-Compiler/).
 
@@ -102,9 +110,9 @@ cross-process lock exclusion, staged replacement, recovery after process death
 at every journal boundary, corrupt-journal fail-closed behavior, and detached
 failure-report placement. It runs on both Windows and Ubuntu in CI.
 
-The end-to-end CLI remains intentionally unavailable: Phase 3 proves placement
-of a supplied fourteen-file byte map, while later semantic phases produce and
-verify the real canonical artifact set.
+Phase 3 isolated publication safety from semantic construction. Phase 10 now
+integrates this substrate into the end-to-end Node CLI and verifies the real
+canonical fourteen-file artifact set after publication.
 
 ## Phase 4 verification
 
@@ -211,3 +219,27 @@ success-line stdout discipline, malformed-result rejection, and combined-defect
 ordering from C0 through C6. The Chromium gate repeats representative C0–C6
 failures through the supervised Worker and verifies timeout, abnormal-worker,
 noncanonical-status, and noncanonical-report mappings byte-for-byte.
+
+## Phase 10 verification
+
+Run the completed Node-host and dual-host conformance suites:
+
+```text
+npm run test:phase10:node
+npm run test:phase10:browser
+```
+
+The Node gate verifies the generated development runtime lock, exact CLI,
+N1–N6 host ordering, lock mutations, input identity and path trust, supervised
+Worker outcomes, publication and post-publication verification, eight seeded
+generated fixtures, exact structural boundaries, the full 85-case corpus, and
+independent-process determinism. The Chromium gate executes that same corpus
+through the reference Worker host. Both environments repeat the complete
+functional corpus with banned globals poisoned and require SHA-256-only digest
+calls plus fatal UTF-8 decoders. Run `npm test` for the complete Phase 0–10
+suite.
+
+The committed `runtime.lock.json` is development evidence and therefore uses
+the specified forty-zero `sourceCommit` sentinel. Phase 11 replaces it with the
+release commit, executes the Firefox and WebKit baselines in addition to
+Chromium, and publishes the final release envelope.

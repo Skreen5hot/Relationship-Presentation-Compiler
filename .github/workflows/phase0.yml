@@ -1,4 +1,4 @@
-name: Phase 0 through 9 gates
+name: Phase 0 through 10 gates
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase0-phase9-${{ github.workflow }}-${{ github.ref }}
+  group: phase0-phase10-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -70,6 +70,9 @@ jobs:
       - name: Verify failure ordering, reports, exit classes, and status lines
         run: npm run test:phase9:node
 
+      - name: Run the full Node host and release conformance corpus
+        run: npm run test:phase10:node
+
   chromium-worker:
     name: Chromium Worker equivalence
     runs-on: ubuntu-latest
@@ -118,3 +121,6 @@ jobs:
 
       - name: Verify failure surfaces through the Chromium Worker host
         run: npm run test:phase9:browser
+
+      - name: Run the full equivalence and poisoned corpus in Chromium
+        run: npm run test:phase10:browser

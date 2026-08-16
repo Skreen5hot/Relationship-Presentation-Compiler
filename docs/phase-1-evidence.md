@@ -72,9 +72,11 @@ The concrete lock-file SHA-256 values are:
 - `artifact.lock.json`: `e07f9556b1259d04360c4cdf5f73924763f4b8058c69dd6340c2e107eb8b833e`
 - `ontology.lock.json`: `89bfd3b5db441bec8e5107f9d7c2b395a238bdd7a93fad2856e490b782ffed1b`
 
-`runtime.lock.json` cannot truthfully be populated until packaging can bind a
-release commit, the Node host, these lock hashes, and the SBOM hash.
+Phase 10 subsequently populated `runtime.lock.json` as reproducible development
+evidence binding the Node host, package graph, these lock hashes, and the SBOM
+hash. It carries the explicit forty-zero development `sourceCommit` sentinel;
+Phase 11 replaces that value with the actual release commit during packaging.
 `browser-host.lock.json` was subsequently populated in Phase 4 with the
 reproducible core bundle, SRI, bundler evidence, and the exact pinned engine
 targets. Full three-engine execution evidence remains a Phase 11 release gate.
-It was intentionally not a Phase 1 artifact.
+Neither host lock was intentionally a Phase 1 artifact.
