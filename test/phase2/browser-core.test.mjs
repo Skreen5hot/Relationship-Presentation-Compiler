@@ -74,7 +74,7 @@ test("Chromium matches Node for the poisoned Phase 2 core corpus", async () => {
   const invalidRequestUtf8 = cloneCoreRequest(canonical);
   invalidRequestUtf8.inputs.request = new Uint8Array([0xff]);
   const corpus = [
-    [canonical, 5, 6],
+    [canonical, 5, 8, 4],
     [missingInput, 0, 0],
     [unknownInput, 0, 0],
     [nonByteInput, 0, 0],
@@ -117,7 +117,12 @@ test("Chromium matches Node for the poisoned Phase 2 core corpus", async () => {
     const page = await browser.newPage();
     await page.goto(`http://127.0.0.1:${address.port}/`);
 
-    for (const [coreRequest, digestCount, decoderCount] of corpus) {
+    for (const [
+      coreRequest,
+      digestCount,
+      decoderCount,
+      encoderCount = 1,
+    ] of corpus) {
       const expected = comparableResult(await compileCore(coreRequest));
       const browserResult = await page.evaluate(
         (serializedRequest) =>
@@ -163,7 +168,7 @@ test("Chromium matches Node for the poisoned Phase 2 core corpus", async () => {
           .length,
         decoderCount,
       );
-      assert.equal(browserResult.observations.encoders, 1);
+      assert.equal(browserResult.observations.encoders, encoderCount);
     }
   } finally {
     await browser?.close();

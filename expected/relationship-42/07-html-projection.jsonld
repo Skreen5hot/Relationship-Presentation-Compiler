@@ -1,0 +1,386 @@
+{
+  "@context": "./poc.context.jsonld",
+  "@id": "run:html-document",
+  "@type": "html:Document",
+  "generatedBy": "rule:html-document-projection-v1-0",
+  "hasChild": [
+    {
+      "@id": "run:html-doctype",
+      "@type": "html:Doctype",
+      "domOrder": 1,
+      "doctypeName": "html",
+      "generatedBy": "rule:html5-doctype-v1-0"
+    },
+    {
+      "@id": "run:html-root",
+      "@type": "html:Element",
+      "domOrder": 2,
+      "elementName": "html",
+      "generatedBy": "rule:html-document-shell-v1-0",
+      "attribute": [
+        {
+          "@id": "run:html-root-lang",
+          "@type": "html:Attribute",
+          "attributeName": "lang",
+          "attributeValue": "en",
+          "generatedBy": "rule:document-language-v1-0"
+        }
+      ],
+      "hasChild": [
+        {
+          "@id": "run:html-head",
+          "@type": "html:Element",
+          "domOrder": 1,
+          "elementName": "head",
+          "generatedBy": "rule:html-document-shell-v1-0",
+          "hasChild": [
+            {
+              "@id": "run:html-meta-charset",
+              "@type": "html:Element",
+              "domOrder": 1,
+              "elementName": "meta",
+              "generatedBy": "rule:utf8-meta-v1-0",
+              "attribute": [
+                {
+                  "@id": "run:html-meta-charset-attribute",
+                  "@type": "html:Attribute",
+                  "attributeName": "charset",
+                  "attributeValue": "utf-8",
+                  "generatedBy": "rule:utf8-meta-v1-0"
+                }
+              ]
+            },
+            {
+              "@id": "run:html-meta-viewport",
+              "@type": "html:Element",
+              "domOrder": 2,
+              "elementName": "meta",
+              "generatedBy": "rule:viewport-meta-v1-0",
+              "attribute": [
+                {
+                  "@id": "run:html-meta-viewport-name",
+                  "@type": "html:Attribute",
+                  "attributeName": "name",
+                  "attributeValue": "viewport",
+                  "generatedBy": "rule:viewport-meta-v1-0"
+                },
+                {
+                  "@id": "run:html-meta-viewport-content",
+                  "@type": "html:Attribute",
+                  "attributeName": "content",
+                  "attributeValue": "width=device-width, initial-scale=1",
+                  "generatedBy": "rule:viewport-meta-v1-0"
+                }
+              ]
+            },
+            {
+              "@id": "run:html-title",
+              "@type": "html:Element",
+              "domOrder": 3,
+              "elementName": "title",
+              "projectsContent": "run:document-title-content",
+              "hasChild": [
+                {
+                  "@id": "run:html-title-text",
+                  "@type": "html:TextNode",
+                  "domOrder": 1,
+                  "projectsContent": "run:document-title-content",
+                  "textNodeValue": "Relationship 42 presentation"
+                }
+              ]
+            },
+            {
+              "@id": "run:html-style",
+              "@type": "html:Element",
+              "domOrder": 4,
+              "elementName": "style",
+              "generatedBy": "rule:carrier-style-v1-0"
+            }
+          ]
+        },
+        {
+          "@id": "run:html-body",
+          "@type": "html:Element",
+          "domOrder": 2,
+          "elementName": "body",
+          "generatedBy": "rule:html-document-shell-v1-0",
+          "hasChild": [
+            {
+              "@id": "run:html-main",
+              "@type": "html:Element",
+              "domOrder": 1,
+              "elementName": "main",
+              "projectsNode": "run:presentation",
+              "attribute": [
+                {
+                  "@id": "run:html-main-aria-label",
+                  "@type": "html:Attribute",
+                  "attributeName": "aria-label",
+                  "attributeValue": "Relationship 42 presentation",
+                  "projectsContent": "run:document-title-content"
+                }
+              ],
+              "hasChild": [
+                {
+                  "@id": "run:html-slide-1",
+                  "@type": "html:Element",
+                  "domOrder": 1,
+                  "elementName": "section",
+                  "projectsNode": "run:slide-1",
+                  "hiddenInitially": false,
+                  "attribute": [
+                    {
+                      "@id": "run:html-slide-1-id",
+                      "@type": "html:Attribute",
+                      "attributeName": "id",
+                      "attributeValue": "slide-1",
+                      "generatedBy": "rule:stable-dom-identifiers-v1-0"
+                    },
+                    {
+                      "@id": "run:html-slide-1-labelledby",
+                      "@type": "html:Attribute",
+                      "attributeName": "aria-labelledby",
+                      "attributeValue": "slide-1-title",
+                      "generatedBy": "rule:heading-reference-v1-0"
+                    }
+                  ],
+                  "hasChild": [
+                    {
+                      "@id": "run:html-slide-1-title",
+                      "@type": "html:Element",
+                      "domOrder": 1,
+                      "elementName": "h1",
+                      "projectsNode": "run:slide-1-title-region",
+                      "attribute": [
+                        {
+                          "@id": "run:html-slide-1-title-id",
+                          "@type": "html:Attribute",
+                          "attributeName": "id",
+                          "attributeValue": "slide-1-title",
+                          "generatedBy": "rule:stable-dom-identifiers-v1-0"
+                        },
+                        {
+                          "@id": "run:html-slide-1-title-tabindex",
+                          "@type": "html:Attribute",
+                          "attributeName": "tabindex",
+                          "attributeValue": "-1",
+                          "generatedBy": "rule:navigation-focus-target-v1-0"
+                        }
+                      ],
+                      "hasChild": [
+                        {
+                          "@id": "run:html-slide-1-title-text",
+                          "@type": "html:TextNode",
+                          "domOrder": 1,
+                          "projectsContent": "run:title-content-1",
+                          "textNodeValue": "Relationship 42"
+                        }
+                      ]
+                    },
+                    {
+                      "@id": "run:html-slide-1-message",
+                      "@type": "html:Element",
+                      "domOrder": 2,
+                      "elementName": "p",
+                      "projectsNode": "run:slide-1-message-region",
+                      "hasChild": [
+                        {
+                          "@id": "run:html-slide-1-message-text",
+                          "@type": "html:TextNode",
+                          "domOrder": 1,
+                          "projectsContent": "run:primary-message-content-1",
+                          "textNodeValue": "Alice is associated with Bob."
+                        }
+                      ]
+                    },
+                    {
+                      "@id": "run:html-slide-1-next",
+                      "@type": "html:Element",
+                      "domOrder": 3,
+                      "elementName": "button",
+                      "projectsNode": "run:slide-1-navigation-region",
+                      "htmlIntent": "advance",
+                      "attribute": [
+                        {
+                          "@id": "run:html-slide-1-next-type",
+                          "@type": "html:Attribute",
+                          "attributeName": "type",
+                          "attributeValue": "button",
+                          "generatedBy": "rule:native-button-v1-0"
+                        },
+                        {
+                          "@id": "run:html-slide-1-next-intent",
+                          "@type": "html:Attribute",
+                          "attributeName": "data-intent",
+                          "attributeValue": "advance",
+                          "generatedBy": "rule:navigation-intent-token-v1-0",
+                          "projectsNode": "run:slide-1-navigation-region"
+                        }
+                      ],
+                      "hasChild": [
+                        {
+                          "@id": "run:html-slide-1-next-text",
+                          "@type": "html:TextNode",
+                          "domOrder": 1,
+                          "projectsNode": "run:slide-1-navigation-region",
+                          "textNodeValue": "Next"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "@id": "run:html-slide-2",
+                  "@type": "html:Element",
+                  "domOrder": 2,
+                  "elementName": "section",
+                  "projectsNode": "run:slide-2",
+                  "hiddenInitially": true,
+                  "attribute": [
+                    {
+                      "@id": "run:html-slide-2-id",
+                      "@type": "html:Attribute",
+                      "attributeName": "id",
+                      "attributeValue": "slide-2",
+                      "generatedBy": "rule:stable-dom-identifiers-v1-0"
+                    },
+                    {
+                      "@id": "run:html-slide-2-labelledby",
+                      "@type": "html:Attribute",
+                      "attributeName": "aria-labelledby",
+                      "attributeValue": "slide-2-title",
+                      "generatedBy": "rule:heading-reference-v1-0"
+                    },
+                    {
+                      "@id": "run:html-slide-2-hidden",
+                      "@type": "html:Attribute",
+                      "attributeName": "hidden",
+                      "attributeValue": "",
+                      "generatedBy": "rule:initial-slide-visibility-v1-0"
+                    }
+                  ],
+                  "hasChild": [
+                    {
+                      "@id": "run:html-slide-2-title",
+                      "@type": "html:Element",
+                      "domOrder": 1,
+                      "elementName": "h2",
+                      "projectsNode": "run:slide-2-title-region",
+                      "attribute": [
+                        {
+                          "@id": "run:html-slide-2-title-id",
+                          "@type": "html:Attribute",
+                          "attributeName": "id",
+                          "attributeValue": "slide-2-title",
+                          "generatedBy": "rule:stable-dom-identifiers-v1-0"
+                        },
+                        {
+                          "@id": "run:html-slide-2-title-tabindex",
+                          "@type": "html:Attribute",
+                          "attributeName": "tabindex",
+                          "attributeValue": "-1",
+                          "generatedBy": "rule:navigation-focus-target-v1-0"
+                        }
+                      ],
+                      "hasChild": [
+                        {
+                          "@id": "run:html-slide-2-title-text",
+                          "@type": "html:TextNode",
+                          "domOrder": 1,
+                          "projectsContent": "run:slide-title-content-2",
+                          "textNodeValue": "Participants"
+                        }
+                      ]
+                    },
+                    {
+                      "@id": "run:html-slide-2-list",
+                      "@type": "html:Element",
+                      "domOrder": 2,
+                      "elementName": "ul",
+                      "projectsNode": "run:slide-2-items-region",
+                      "hasChild": [
+                        {
+                          "@id": "run:html-slide-2-item-1",
+                          "@type": "html:Element",
+                          "domOrder": 1,
+                          "elementName": "li",
+                          "projectsNode": "run:slide-2-item-region-1",
+                          "hasChild": [
+                            {
+                              "@id": "run:html-slide-2-item-1-text",
+                              "@type": "html:TextNode",
+                              "domOrder": 1,
+                              "projectsContent": "run:participant-item-content-1",
+                              "textNodeValue": "Alice"
+                            }
+                          ]
+                        },
+                        {
+                          "@id": "run:html-slide-2-item-2",
+                          "@type": "html:Element",
+                          "domOrder": 2,
+                          "elementName": "li",
+                          "projectsNode": "run:slide-2-item-region-2",
+                          "hasChild": [
+                            {
+                              "@id": "run:html-slide-2-item-2-text",
+                              "@type": "html:TextNode",
+                              "domOrder": 1,
+                              "projectsContent": "run:participant-item-content-2",
+                              "textNodeValue": "Bob"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "@id": "run:html-slide-2-previous",
+                      "@type": "html:Element",
+                      "domOrder": 3,
+                      "elementName": "button",
+                      "projectsNode": "run:slide-2-navigation-region",
+                      "htmlIntent": "back",
+                      "attribute": [
+                        {
+                          "@id": "run:html-slide-2-previous-type",
+                          "@type": "html:Attribute",
+                          "attributeName": "type",
+                          "attributeValue": "button",
+                          "generatedBy": "rule:native-button-v1-0"
+                        },
+                        {
+                          "@id": "run:html-slide-2-previous-intent",
+                          "@type": "html:Attribute",
+                          "attributeName": "data-intent",
+                          "attributeValue": "back",
+                          "generatedBy": "rule:navigation-intent-token-v1-0",
+                          "projectsNode": "run:slide-2-navigation-region"
+                        }
+                      ],
+                      "hasChild": [
+                        {
+                          "@id": "run:html-slide-2-previous-text",
+                          "@type": "html:TextNode",
+                          "domOrder": 1,
+                          "projectsNode": "run:slide-2-navigation-region",
+                          "textNodeValue": "Previous"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "@id": "run:html-script",
+              "@type": "html:Element",
+              "domOrder": 2,
+              "elementName": "script",
+              "generatedBy": "rule:carrier-navigation-script-v1-0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

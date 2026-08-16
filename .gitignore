@@ -5,6 +5,7 @@ build/
 dist/
 playwright-report/
 test-results/
+site/
 *.tmp
 *.staging
 *.staging-*

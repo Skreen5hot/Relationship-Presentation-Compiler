@@ -8,8 +8,8 @@ Specification: Relationship Presentation Compiler v1.0, edge-canonical re-cut
 
 Phase 4 materializes the deterministic browser core bundle, its Browser-host
 lock, and the supervised reference embed API. It first proved the browser
-substrate against the C0–C2 shell; the same locked bundle now carries C3–C6 and
-Stages 01–06 while retaining the Phase 4 host contract.
+substrate against the C0–C2 shell; the same locked bundle now carries C3–C7 and
+Stages 01–07 while retaining the Phase 4 host contract.
 
 ## Locked core bundle
 
@@ -24,8 +24,8 @@ shims selected in Phase 0.
 The committed bundle exports exactly `compileCore` and `buildErrorReport`. Its
 lock evidence is:
 
-- SHA-256: `d4a6392a04178c9cc6ed75202ae5221236b6f2d90ee2062fb0f1030ef53dfcfc`
-- SRI: `sha384-hHeUbMUdOgs/P6C+DWr8jeTHX92Eli/SCBTgFISt8chlIB5hvJMhtb3KIhzX3+jo`
+- SHA-256: `b34de5175ce77e29c5030512c519a8b88e881d057319c050e88914ea93ecf0a2`
+- SRI: `sha384-QxUJwoirZDwytWgJL393ImetEDu3OZHrAB/2E46xed5WcmnGvyKQaFNRSZhpyCdx`
 
 `browser-host.lock.json` also binds the esbuild package integrity and the exact
 browser versions pinned by Playwright 1.62.1: Chromium 151.0.7922.34, Firefox
@@ -54,11 +54,12 @@ The real-Chromium test serves the committed modules over HTTP and compares the
 reference host with direct Node execution of the same committed core bundle.
 The smoke corpus covers the canonical fixture request, a mutated locked carrier,
 and an invalid CoreRequest value. Phase 5 extends this evidence with request,
-profile, context, contract, and contamination cases. Phase 6 adds canonical,
-late-bound, and hostile-placeholder paths. The canonical request now passes
-C3–C6 and Stages 01–06, then returns `INTERNAL_COMPILER_ERROR` at the explicit
-Stage 07 boundary; equivalence asserts identical bytes and codes, not full
-semantic success that has not yet been implemented.
+profile, context, contract, and contamination cases. Phases 6–7 add canonical,
+late-bound, hostile-placeholder, projection, carrier, and revalidation paths.
+The canonical request now passes C3–C7 and Stages 01–07, then returns
+`INTERNAL_COMPILER_ERROR` at the Phase 8 fingerprint/manifest boundary;
+equivalence asserts identical bytes and codes, not full semantic success that
+has not yet been implemented.
 
 Separate Worker fixtures prove timeout termination, thrown-worker failure,
 malformed-result rejection, structured-clone rejection, active-work shutdown,

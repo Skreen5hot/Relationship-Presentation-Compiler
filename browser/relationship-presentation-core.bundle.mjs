@@ -4154,6 +4154,120 @@ function scanJsonText(text) {
   return { depth: maximumDepth, value: JSON.parse(text) };
 }
 
+// src/core/phase7.js
+init_define_RPC_ARTIFACT_DIGESTS();
+
+// src/core/build-demo.js
+init_define_RPC_ARTIFACT_DIGESTS();
+
+// src/core/escape-html.js
+init_define_RPC_ARTIFACT_DIGESTS();
+var TEXT_REPLACEMENTS = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;"
+};
+var ATTRIBUTE_REPLACEMENTS = {
+  ...TEXT_REPLACEMENTS,
+  '"': "&quot;"
+};
+function escapeHtmlText(value) {
+  return value.replace(/[&<>]/gu, (character) => TEXT_REPLACEMENTS[character]);
+}
+function escapeHtmlAttribute(value) {
+  return value.replace(
+    /[&<>"]/gu,
+    (character) => ATTRIBUTE_REPLACEMENTS[character]
+  );
+}
+
+// src/core/build-demo.js
+var PHASE7_ARTIFACTS = [
+  "poc.context.jsonld",
+  "01-request.jsonld",
+  "02-resolution.jsonld",
+  "03-contract-validation.jsonld",
+  "04-content-manifest.jsonld",
+  "05-narrative.jsonld",
+  "06-presentation.jsonld",
+  "07-html-projection.jsonld",
+  "presentation.html"
+];
+function findText(narrative, id) {
+  const content = [
+    ...narrative.hasDocumentContent ?? [],
+    ...(narrative.hasUnit ?? []).flatMap((unit) => unit.hasContent ?? [])
+  ].find((node) => node["@id"] === id);
+  if (typeof content?.textValue !== "string") {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  return content.textValue;
+}
+function buildDemoHtml(narrative, presentationBytes) {
+  let presentation;
+  try {
+    presentation = new TextDecoder("utf-8", { fatal: true }).decode(
+      presentationBytes
+    );
+  } catch {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  const documentTitle = findText(narrative, "run:document-title-content");
+  const message = findText(narrative, "run:primary-message-content-1");
+  const artifactItems = PHASE7_ARTIFACTS.map(
+    (name) => `          <li><a href="${escapeHtmlAttribute(
+      name
+    )}"><code>${escapeHtmlText(name)}</code></a></li>`
+  ).join("\n");
+  const html = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Relationship Presentation Compiler — Phase 7 demo</title>
+    <style>
+      :root { color-scheme: light; font-family: system-ui, sans-serif; color: #172033; background: #eef2f7; }
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      main { width: min(100% - 2rem, 80rem); margin: 0 auto; padding: 2rem 0 4rem; }
+      header { margin-bottom: 1.5rem; }
+      .eyebrow { color: #1769aa; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+      h1, h2 { color: #103f72; }
+      h1 { margin-bottom: .5rem; }
+      .summary { max-width: 70ch; font-size: 1.1rem; line-height: 1.55; }
+      iframe { width: 100%; aspect-ratio: 16 / 9; border: 1px solid #cad3e1; border-radius: 1rem; background: white; box-shadow: 0 1rem 3rem rgb(23 32 51 / 14%); }
+      section { margin-top: 2rem; padding: 1.25rem 1.5rem; border: 1px solid #cad3e1; border-radius: .75rem; background: white; }
+      code { overflow-wrap: anywhere; }
+      a { color: #075b9d; }
+      a:focus-visible { outline: .2rem solid #f6a800; outline-offset: .2rem; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Edge-canonical compiler · Phase 7</p>
+        <h1>${escapeHtmlText(documentTitle)}</h1>
+        <p class="summary">${escapeHtmlText(message)} This diagnostic viewer presents the deterministic Stage 07 HTML projection. Its embedded presentation is network-silent because its locked carriers make no requests.</p>
+        <p><a href="presentation.html">Open the generated presentation directly</a></p>
+      </header>
+      <iframe title="Generated presentation: ${escapeHtmlAttribute(
+    documentTitle
+  )}" sandbox="allow-scripts" srcdoc="${escapeHtmlAttribute(
+    presentation
+  )}"></iframe>
+      <section aria-labelledby="artifact-heading">
+        <h2 id="artifact-heading">Phase 7 artifacts</h2>
+        <ol>
+${artifactItems}
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>
+`;
+  return new TextEncoder().encode(html);
+}
+
 // src/core/phase6.js
 init_define_RPC_ARTIFACT_DIGESTS();
 
@@ -5343,6 +5457,1007 @@ async function runPhase6(parsedInputs) {
   };
 }
 
+// src/core/project-html.js
+init_define_RPC_ARTIFACT_DIGESTS();
+function narrativeContent(narrative) {
+  const content = [
+    ...narrative.hasDocumentContent ?? [],
+    ...(narrative.hasUnit ?? []).flatMap((unit) => unit.hasContent ?? [])
+  ];
+  const byId = new Map(content.map((node) => [node["@id"], node]));
+  if (content.length !== 6 || byId.size !== 6) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  return byId;
+}
+function requireText(content, id) {
+  const node = content.get(id);
+  if (node?.["@type"] !== "projection:TextContent" || typeof node.textValue !== "string") {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  return node.textValue;
+}
+function requirePresentation(presentation) {
+  const firstSlide = presentation.hasSlide?.[0];
+  const secondSlide = presentation.hasSlide?.[1];
+  const firstRegions = firstSlide?.hasRegion;
+  const secondRegions = secondSlide?.hasRegion;
+  const items = secondRegions?.[1]?.hasItem;
+  if (presentation["@id"] !== "run:presentation" || presentation.hasSlide?.length !== 2 || firstSlide?.["@id"] !== "run:slide-1" || secondSlide?.["@id"] !== "run:slide-2" || firstRegions?.length !== 3 || secondRegions?.length !== 3 || firstRegions[0]?.["@id"] !== "run:slide-1-title-region" || firstRegions[1]?.["@id"] !== "run:slide-1-message-region" || firstRegions[2]?.["@id"] !== "run:slide-1-navigation-region" || secondRegions[0]?.["@id"] !== "run:slide-2-title-region" || secondRegions[1]?.["@id"] !== "run:slide-2-items-region" || secondRegions[2]?.["@id"] !== "run:slide-2-navigation-region" || items?.length !== 2 || items[0]?.["@id"] !== "run:slide-2-item-region-1" || items[1]?.["@id"] !== "run:slide-2-item-region-2" || firstRegions[2].intent !== "projection:Advance" || secondRegions[2].intent !== "projection:GoBack" || typeof firstRegions[2].buttonLabel !== "string" || typeof secondRegions[2].buttonLabel !== "string") {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  return {
+    advanceLabel: firstRegions[2].buttonLabel,
+    backLabel: secondRegions[2].buttonLabel
+  };
+}
+function textNode(id, projectsMember, projectsValue, textNodeValue) {
+  return {
+    "@id": id,
+    "@type": "html:TextNode",
+    domOrder: 1,
+    [projectsMember]: projectsValue,
+    textNodeValue
+  };
+}
+function projectHtmlDocument(narrative, presentation) {
+  const content = narrativeContent(narrative);
+  const navigation = requirePresentation(presentation);
+  const documentTitle = requireText(content, "run:document-title-content");
+  const deckTitle = requireText(content, "run:title-content-1");
+  const message = requireText(content, "run:primary-message-content-1");
+  const participantTitle = requireText(content, "run:slide-title-content-2");
+  const firstParticipant = requireText(
+    content,
+    "run:participant-item-content-1"
+  );
+  const secondParticipant = requireText(
+    content,
+    "run:participant-item-content-2"
+  );
+  return {
+    "@context": "./poc.context.jsonld",
+    "@id": "run:html-document",
+    "@type": "html:Document",
+    generatedBy: "rule:html-document-projection-v1-0",
+    hasChild: [
+      {
+        "@id": "run:html-doctype",
+        "@type": "html:Doctype",
+        domOrder: 1,
+        doctypeName: "html",
+        generatedBy: "rule:html5-doctype-v1-0"
+      },
+      {
+        "@id": "run:html-root",
+        "@type": "html:Element",
+        domOrder: 2,
+        elementName: "html",
+        generatedBy: "rule:html-document-shell-v1-0",
+        attribute: [
+          {
+            "@id": "run:html-root-lang",
+            "@type": "html:Attribute",
+            attributeName: "lang",
+            attributeValue: "en",
+            generatedBy: "rule:document-language-v1-0"
+          }
+        ],
+        hasChild: [
+          {
+            "@id": "run:html-head",
+            "@type": "html:Element",
+            domOrder: 1,
+            elementName: "head",
+            generatedBy: "rule:html-document-shell-v1-0",
+            hasChild: [
+              {
+                "@id": "run:html-meta-charset",
+                "@type": "html:Element",
+                domOrder: 1,
+                elementName: "meta",
+                generatedBy: "rule:utf8-meta-v1-0",
+                attribute: [
+                  {
+                    "@id": "run:html-meta-charset-attribute",
+                    "@type": "html:Attribute",
+                    attributeName: "charset",
+                    attributeValue: "utf-8",
+                    generatedBy: "rule:utf8-meta-v1-0"
+                  }
+                ]
+              },
+              {
+                "@id": "run:html-meta-viewport",
+                "@type": "html:Element",
+                domOrder: 2,
+                elementName: "meta",
+                generatedBy: "rule:viewport-meta-v1-0",
+                attribute: [
+                  {
+                    "@id": "run:html-meta-viewport-name",
+                    "@type": "html:Attribute",
+                    attributeName: "name",
+                    attributeValue: "viewport",
+                    generatedBy: "rule:viewport-meta-v1-0"
+                  },
+                  {
+                    "@id": "run:html-meta-viewport-content",
+                    "@type": "html:Attribute",
+                    attributeName: "content",
+                    attributeValue: "width=device-width, initial-scale=1",
+                    generatedBy: "rule:viewport-meta-v1-0"
+                  }
+                ]
+              },
+              {
+                "@id": "run:html-title",
+                "@type": "html:Element",
+                domOrder: 3,
+                elementName: "title",
+                projectsContent: "run:document-title-content",
+                hasChild: [
+                  textNode(
+                    "run:html-title-text",
+                    "projectsContent",
+                    "run:document-title-content",
+                    documentTitle
+                  )
+                ]
+              },
+              {
+                "@id": "run:html-style",
+                "@type": "html:Element",
+                domOrder: 4,
+                elementName: "style",
+                generatedBy: "rule:carrier-style-v1-0"
+              }
+            ]
+          },
+          {
+            "@id": "run:html-body",
+            "@type": "html:Element",
+            domOrder: 2,
+            elementName: "body",
+            generatedBy: "rule:html-document-shell-v1-0",
+            hasChild: [
+              {
+                "@id": "run:html-main",
+                "@type": "html:Element",
+                domOrder: 1,
+                elementName: "main",
+                projectsNode: "run:presentation",
+                attribute: [
+                  {
+                    "@id": "run:html-main-aria-label",
+                    "@type": "html:Attribute",
+                    attributeName: "aria-label",
+                    attributeValue: documentTitle,
+                    projectsContent: "run:document-title-content"
+                  }
+                ],
+                hasChild: [
+                  {
+                    "@id": "run:html-slide-1",
+                    "@type": "html:Element",
+                    domOrder: 1,
+                    elementName: "section",
+                    projectsNode: "run:slide-1",
+                    hiddenInitially: false,
+                    attribute: [
+                      {
+                        "@id": "run:html-slide-1-id",
+                        "@type": "html:Attribute",
+                        attributeName: "id",
+                        attributeValue: "slide-1",
+                        generatedBy: "rule:stable-dom-identifiers-v1-0"
+                      },
+                      {
+                        "@id": "run:html-slide-1-labelledby",
+                        "@type": "html:Attribute",
+                        attributeName: "aria-labelledby",
+                        attributeValue: "slide-1-title",
+                        generatedBy: "rule:heading-reference-v1-0"
+                      }
+                    ],
+                    hasChild: [
+                      {
+                        "@id": "run:html-slide-1-title",
+                        "@type": "html:Element",
+                        domOrder: 1,
+                        elementName: "h1",
+                        projectsNode: "run:slide-1-title-region",
+                        attribute: [
+                          {
+                            "@id": "run:html-slide-1-title-id",
+                            "@type": "html:Attribute",
+                            attributeName: "id",
+                            attributeValue: "slide-1-title",
+                            generatedBy: "rule:stable-dom-identifiers-v1-0"
+                          },
+                          {
+                            "@id": "run:html-slide-1-title-tabindex",
+                            "@type": "html:Attribute",
+                            attributeName: "tabindex",
+                            attributeValue: "-1",
+                            generatedBy: "rule:navigation-focus-target-v1-0"
+                          }
+                        ],
+                        hasChild: [
+                          textNode(
+                            "run:html-slide-1-title-text",
+                            "projectsContent",
+                            "run:title-content-1",
+                            deckTitle
+                          )
+                        ]
+                      },
+                      {
+                        "@id": "run:html-slide-1-message",
+                        "@type": "html:Element",
+                        domOrder: 2,
+                        elementName: "p",
+                        projectsNode: "run:slide-1-message-region",
+                        hasChild: [
+                          textNode(
+                            "run:html-slide-1-message-text",
+                            "projectsContent",
+                            "run:primary-message-content-1",
+                            message
+                          )
+                        ]
+                      },
+                      {
+                        "@id": "run:html-slide-1-next",
+                        "@type": "html:Element",
+                        domOrder: 3,
+                        elementName: "button",
+                        projectsNode: "run:slide-1-navigation-region",
+                        htmlIntent: "advance",
+                        attribute: [
+                          {
+                            "@id": "run:html-slide-1-next-type",
+                            "@type": "html:Attribute",
+                            attributeName: "type",
+                            attributeValue: "button",
+                            generatedBy: "rule:native-button-v1-0"
+                          },
+                          {
+                            "@id": "run:html-slide-1-next-intent",
+                            "@type": "html:Attribute",
+                            attributeName: "data-intent",
+                            attributeValue: "advance",
+                            generatedBy: "rule:navigation-intent-token-v1-0",
+                            projectsNode: "run:slide-1-navigation-region"
+                          }
+                        ],
+                        hasChild: [
+                          textNode(
+                            "run:html-slide-1-next-text",
+                            "projectsNode",
+                            "run:slide-1-navigation-region",
+                            navigation.advanceLabel
+                          )
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "@id": "run:html-slide-2",
+                    "@type": "html:Element",
+                    domOrder: 2,
+                    elementName: "section",
+                    projectsNode: "run:slide-2",
+                    hiddenInitially: true,
+                    attribute: [
+                      {
+                        "@id": "run:html-slide-2-id",
+                        "@type": "html:Attribute",
+                        attributeName: "id",
+                        attributeValue: "slide-2",
+                        generatedBy: "rule:stable-dom-identifiers-v1-0"
+                      },
+                      {
+                        "@id": "run:html-slide-2-labelledby",
+                        "@type": "html:Attribute",
+                        attributeName: "aria-labelledby",
+                        attributeValue: "slide-2-title",
+                        generatedBy: "rule:heading-reference-v1-0"
+                      },
+                      {
+                        "@id": "run:html-slide-2-hidden",
+                        "@type": "html:Attribute",
+                        attributeName: "hidden",
+                        attributeValue: "",
+                        generatedBy: "rule:initial-slide-visibility-v1-0"
+                      }
+                    ],
+                    hasChild: [
+                      {
+                        "@id": "run:html-slide-2-title",
+                        "@type": "html:Element",
+                        domOrder: 1,
+                        elementName: "h2",
+                        projectsNode: "run:slide-2-title-region",
+                        attribute: [
+                          {
+                            "@id": "run:html-slide-2-title-id",
+                            "@type": "html:Attribute",
+                            attributeName: "id",
+                            attributeValue: "slide-2-title",
+                            generatedBy: "rule:stable-dom-identifiers-v1-0"
+                          },
+                          {
+                            "@id": "run:html-slide-2-title-tabindex",
+                            "@type": "html:Attribute",
+                            attributeName: "tabindex",
+                            attributeValue: "-1",
+                            generatedBy: "rule:navigation-focus-target-v1-0"
+                          }
+                        ],
+                        hasChild: [
+                          textNode(
+                            "run:html-slide-2-title-text",
+                            "projectsContent",
+                            "run:slide-title-content-2",
+                            participantTitle
+                          )
+                        ]
+                      },
+                      {
+                        "@id": "run:html-slide-2-list",
+                        "@type": "html:Element",
+                        domOrder: 2,
+                        elementName: "ul",
+                        projectsNode: "run:slide-2-items-region",
+                        hasChild: [
+                          {
+                            "@id": "run:html-slide-2-item-1",
+                            "@type": "html:Element",
+                            domOrder: 1,
+                            elementName: "li",
+                            projectsNode: "run:slide-2-item-region-1",
+                            hasChild: [
+                              textNode(
+                                "run:html-slide-2-item-1-text",
+                                "projectsContent",
+                                "run:participant-item-content-1",
+                                firstParticipant
+                              )
+                            ]
+                          },
+                          {
+                            "@id": "run:html-slide-2-item-2",
+                            "@type": "html:Element",
+                            domOrder: 2,
+                            elementName: "li",
+                            projectsNode: "run:slide-2-item-region-2",
+                            hasChild: [
+                              textNode(
+                                "run:html-slide-2-item-2-text",
+                                "projectsContent",
+                                "run:participant-item-content-2",
+                                secondParticipant
+                              )
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "@id": "run:html-slide-2-previous",
+                        "@type": "html:Element",
+                        domOrder: 3,
+                        elementName: "button",
+                        projectsNode: "run:slide-2-navigation-region",
+                        htmlIntent: "back",
+                        attribute: [
+                          {
+                            "@id": "run:html-slide-2-previous-type",
+                            "@type": "html:Attribute",
+                            attributeName: "type",
+                            attributeValue: "button",
+                            generatedBy: "rule:native-button-v1-0"
+                          },
+                          {
+                            "@id": "run:html-slide-2-previous-intent",
+                            "@type": "html:Attribute",
+                            attributeName: "data-intent",
+                            attributeValue: "back",
+                            generatedBy: "rule:navigation-intent-token-v1-0",
+                            projectsNode: "run:slide-2-navigation-region"
+                          }
+                        ],
+                        hasChild: [
+                          textNode(
+                            "run:html-slide-2-previous-text",
+                            "projectsNode",
+                            "run:slide-2-navigation-region",
+                            navigation.backLabel
+                          )
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "@id": "run:html-script",
+                "@type": "html:Element",
+                domOrder: 2,
+                elementName: "script",
+                generatedBy: "rule:carrier-navigation-script-v1-0"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+}
+
+// src/core/render-html.js
+init_define_RPC_ARTIFACT_DIGESTS();
+var ALLOWED_ELEMENTS = /* @__PURE__ */ new Set([
+  "html",
+  "head",
+  "meta",
+  "title",
+  "style",
+  "body",
+  "main",
+  "section",
+  "h1",
+  "h2",
+  "p",
+  "ul",
+  "li",
+  "button",
+  "script"
+]);
+var ALLOWED_ATTRIBUTES = /* @__PURE__ */ new Set([
+  "lang",
+  "charset",
+  "name",
+  "content",
+  "aria-label",
+  "id",
+  "aria-labelledby",
+  "tabindex",
+  "hidden",
+  "type",
+  "data-intent"
+]);
+function renderAttributes(attributes = []) {
+  const names = /* @__PURE__ */ new Set();
+  let rendered = "";
+  for (const attribute of attributes) {
+    const name = attribute?.attributeName;
+    const value = attribute?.attributeValue;
+    if (attribute?.["@type"] !== "html:Attribute" || !ALLOWED_ATTRIBUTES.has(name) || names.has(name) || typeof value !== "string") {
+      fail("INTERNAL_COMPILER_ERROR");
+    }
+    names.add(name);
+    if (name === "hidden" && value === "") {
+      rendered += " hidden";
+    } else {
+      rendered += ` ${name}="${escapeHtmlAttribute(value)}"`;
+    }
+  }
+  return rendered;
+}
+function renderElement(node, depth, carrierStyle, carrierNavigation) {
+  const name = node?.elementName;
+  if (node?.["@type"] !== "html:Element" || !ALLOWED_ELEMENTS.has(name)) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  const indentation = "  ".repeat(depth);
+  const opening = `<${name}${renderAttributes(node.attribute)}>`;
+  if (name === "meta") {
+    if (node.hasChild !== void 0) {
+      fail("INTERNAL_COMPILER_ERROR");
+    }
+    return `${indentation}${opening}
+`;
+  }
+  if (name === "style" || name === "script") {
+    if (node.hasChild !== void 0 || node.attribute !== void 0) {
+      fail("INTERNAL_COMPILER_ERROR");
+    }
+    const payload = name === "style" ? carrierStyle : carrierNavigation;
+    if (typeof payload !== "string" || !payload.endsWith("\n")) {
+      fail("INTERNAL_COMPILER_ERROR");
+    }
+    return `${indentation}${opening}
+${payload}${indentation}</${name}>
+`;
+  }
+  const children = node.hasChild;
+  if (!Array.isArray(children) || children.length === 0) {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  if (children.length === 1 && children[0]?.["@type"] === "html:TextNode") {
+    if (typeof children[0].textNodeValue !== "string") {
+      fail("INTERNAL_COMPILER_ERROR");
+    }
+    return `${indentation}${opening}${escapeHtmlText(
+      children[0].textNodeValue
+    )}</${name}>
+`;
+  }
+  let rendered = `${indentation}${opening}
+`;
+  for (const child of children) {
+    rendered += renderElement(
+      child,
+      depth + 1,
+      carrierStyle,
+      carrierNavigation
+    );
+  }
+  return `${rendered}${indentation}</${name}>
+`;
+}
+function renderHtmlDocument(htmlProjection, carrierStyle, carrierNavigation) {
+  const children = htmlProjection?.hasChild;
+  if (htmlProjection?.["@type"] !== "html:Document" || !Array.isArray(children) || children.length !== 2 || children[0]?.["@type"] !== "html:Doctype" || children[0].doctypeName !== "html") {
+    fail("INTERNAL_COMPILER_ERROR");
+  }
+  const rendered = `<!DOCTYPE html>
+${renderElement(
+    children[1],
+    0,
+    carrierStyle,
+    carrierNavigation
+  )}`;
+  return new TextEncoder().encode(rendered);
+}
+
+// src/core/revalidate-html.js
+init_define_RPC_ARTIFACT_DIGESTS();
+var RAW_ELEMENTS = /* @__PURE__ */ new Set(["style", "script"]);
+var VOID_ELEMENTS = /* @__PURE__ */ new Set(["meta"]);
+var REFERENCES = {
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"'
+};
+var INTENT_TOKENS = {
+  "projection:Advance": "advance",
+  "projection:GoBack": "back"
+};
+function invalid() {
+  fail("INTERNAL_COMPILER_ERROR");
+}
+function decodeReferences(value) {
+  let decoded = "";
+  for (let index = 0; index < value.length; index += 1) {
+    const character = value[index];
+    if (character === "<" || character === ">") {
+      invalid();
+    }
+    if (character !== "&") {
+      decoded += character;
+      continue;
+    }
+    const reference = Object.keys(REFERENCES).find(
+      (candidate) => value.startsWith(candidate, index)
+    );
+    if (reference === void 0) {
+      invalid();
+    }
+    decoded += REFERENCES[reference];
+    index += reference.length - 1;
+  }
+  return decoded;
+}
+function parseOpening(opening) {
+  const firstSpace = opening.indexOf(" ");
+  const tag = firstSpace === -1 ? opening : opening.slice(0, firstSpace);
+  if (!ALLOWED_ELEMENTS.has(tag)) {
+    invalid();
+  }
+  let remaining = firstSpace === -1 ? "" : opening.slice(firstSpace);
+  const attributes = [];
+  const names = /* @__PURE__ */ new Set();
+  while (remaining.length > 0) {
+    if (remaining[0] !== " ") {
+      invalid();
+    }
+    remaining = remaining.slice(1);
+    const match = /^[a-z][a-z-]*/u.exec(remaining);
+    if (match === null) {
+      invalid();
+    }
+    const name = match[0];
+    if (!ALLOWED_ATTRIBUTES.has(name) || names.has(name)) {
+      invalid();
+    }
+    names.add(name);
+    remaining = remaining.slice(name.length);
+    if (name === "hidden" && (remaining === "" || remaining[0] === " ")) {
+      attributes.push({ name, value: "", valueless: true });
+      continue;
+    }
+    if (!remaining.startsWith('="')) {
+      invalid();
+    }
+    const closingQuote = remaining.indexOf('"', 2);
+    if (closingQuote === -1) {
+      invalid();
+    }
+    const encodedValue = remaining.slice(2, closingQuote);
+    attributes.push({
+      name,
+      value: decodeReferences(encodedValue),
+      valueless: false
+    });
+    remaining = remaining.slice(closingQuote + 1);
+  }
+  return { attributes, tag };
+}
+function carrierSafe(value, elementName) {
+  return !value.toLowerCase().includes(`</${elementName}`);
+}
+function createParser(input, carrierStyle, carrierNavigation) {
+  let position = 0;
+  function takeLine() {
+    const end = input.indexOf("\n", position);
+    if (end === -1) {
+      invalid();
+    }
+    const line = input.slice(position, end);
+    position = end + 1;
+    return line;
+  }
+  function parseElement(depth) {
+    const indentation = "  ".repeat(depth);
+    const line = takeLine();
+    if (!line.startsWith(`${indentation}<`)) {
+      invalid();
+    }
+    const markup = line.slice(indentation.length);
+    const openingEnd = markup.indexOf(">");
+    if (openingEnd < 2 || markup[1] === "/" || markup[1] === "!") {
+      invalid();
+    }
+    const { attributes, tag } = parseOpening(markup.slice(1, openingEnd));
+    const tail = markup.slice(openingEnd + 1);
+    const element = { kind: "element", tag, attributes, children: [] };
+    if (VOID_ELEMENTS.has(tag)) {
+      if (tail !== "") {
+        invalid();
+      }
+      return element;
+    }
+    if (RAW_ELEMENTS.has(tag)) {
+      if (tail !== "") {
+        invalid();
+      }
+      const payload = tag === "style" ? carrierStyle : carrierNavigation;
+      if (typeof payload !== "string" || !payload.endsWith("\n") || !carrierSafe(payload, tag) || !input.startsWith(payload, position)) {
+        invalid();
+      }
+      position += payload.length;
+      if (takeLine() !== `${indentation}</${tag}>`) {
+        invalid();
+      }
+      element.raw = payload;
+      return element;
+    }
+    if (tail !== "") {
+      const closing = `</${tag}>`;
+      if (!tail.endsWith(closing)) {
+        invalid();
+      }
+      const encodedText = tail.slice(0, -closing.length);
+      element.children.push({
+        kind: "text",
+        value: decodeReferences(encodedText)
+      });
+      return element;
+    }
+    const closingLine = `${indentation}</${tag}>`;
+    while (!input.startsWith(`${closingLine}
+`, position)) {
+      if (position >= input.length) {
+        invalid();
+      }
+      element.children.push(parseElement(depth + 1));
+    }
+    if (takeLine() !== closingLine || element.children.length === 0) {
+      invalid();
+    }
+    return element;
+  }
+  return {
+    parse() {
+      if (takeLine() !== "<!DOCTYPE html>") {
+        invalid();
+      }
+      const parsedDocument = {
+        kind: "document",
+        children: [
+          { kind: "doctype", name: "html" },
+          parseElement(0)
+        ]
+      };
+      if (position !== input.length) {
+        invalid();
+      }
+      return parsedDocument;
+    }
+  };
+}
+function serializeAttributes(attributes) {
+  return attributes.map(
+    (attribute) => attribute.valueless ? ` ${attribute.name}` : ` ${attribute.name}="${escapeHtmlAttribute(attribute.value)}"`
+  ).join("");
+}
+function serializeParsedElement(element, depth) {
+  const indentation = "  ".repeat(depth);
+  const opening = `<${element.tag}${serializeAttributes(element.attributes)}>`;
+  if (VOID_ELEMENTS.has(element.tag)) {
+    return `${indentation}${opening}
+`;
+  }
+  if (RAW_ELEMENTS.has(element.tag)) {
+    return `${indentation}${opening}
+${element.raw}${indentation}</${element.tag}>
+`;
+  }
+  if (element.children.length === 1 && element.children[0].kind === "text") {
+    return `${indentation}${opening}${escapeHtmlText(
+      element.children[0].value
+    )}</${element.tag}>
+`;
+  }
+  let result = `${indentation}${opening}
+`;
+  for (const child of element.children) {
+    if (child.kind !== "element") {
+      invalid();
+    }
+    result += serializeParsedElement(child, depth + 1);
+  }
+  return `${result}${indentation}</${element.tag}>
+`;
+}
+function serializeParsedDocument(parsedDocument) {
+  if (parsedDocument.kind !== "document" || parsedDocument.children.length !== 2 || parsedDocument.children[0].kind !== "doctype" || parsedDocument.children[0].name !== "html") {
+    invalid();
+  }
+  return `<!DOCTYPE html>
+${serializeParsedElement(
+    parsedDocument.children[1],
+    0
+  )}`;
+}
+function graphAttributes(node) {
+  return (node.attribute ?? []).map((attribute) => ({
+    name: attribute.attributeName,
+    value: attribute.attributeValue,
+    valueless: attribute.attributeName === "hidden" && attribute.attributeValue === ""
+  }));
+}
+function sameAttributes(actual, expected) {
+  return actual.length === expected.length && actual.every(
+    (attribute, index) => attribute.name === expected[index].name && attribute.value === expected[index].value && attribute.valueless === expected[index].valueless
+  );
+}
+function compareParsedElement(parsed, projected, carrierStyle, carrierNavigation) {
+  if (parsed.kind !== "element" || projected?.["@type"] !== "html:Element" || parsed.tag !== projected.elementName || !sameAttributes(parsed.attributes, graphAttributes(projected))) {
+    invalid();
+  }
+  if (RAW_ELEMENTS.has(parsed.tag)) {
+    const carrier = parsed.tag === "style" ? carrierStyle : carrierNavigation;
+    if (parsed.raw !== carrier || projected.hasChild !== void 0) {
+      invalid();
+    }
+    return;
+  }
+  const projectedChildren = projected.hasChild ?? [];
+  if (parsed.children.length !== projectedChildren.length) {
+    invalid();
+  }
+  for (let index = 0; index < parsed.children.length; index += 1) {
+    const parsedChild = parsed.children[index];
+    const projectedChild = projectedChildren[index];
+    if (parsedChild.kind === "text") {
+      if (projectedChild?.["@type"] !== "html:TextNode" || parsedChild.value !== projectedChild.textNodeValue) {
+        invalid();
+      }
+    } else {
+      compareParsedElement(
+        parsedChild,
+        projectedChild,
+        carrierStyle,
+        carrierNavigation
+      );
+    }
+  }
+}
+function visitProjection(node, visitor) {
+  visitor(node);
+  for (const attribute of node.attribute ?? []) {
+    visitor(attribute, node);
+  }
+  for (const child of node.hasChild ?? []) {
+    visitProjection(child, visitor);
+  }
+}
+function contentMap(narrative) {
+  const content = [
+    ...narrative.hasDocumentContent ?? [],
+    ...(narrative.hasUnit ?? []).flatMap((unit) => unit.hasContent ?? [])
+  ];
+  return new Map(content.map((node) => [node["@id"], node.textValue]));
+}
+function presentationMap(presentation) {
+  const result = /* @__PURE__ */ new Map([[presentation["@id"], presentation]]);
+  for (const slide of presentation.hasSlide ?? []) {
+    result.set(slide["@id"], slide);
+    for (const region of slide.hasRegion ?? []) {
+      result.set(region["@id"], region);
+      for (const item of region.hasItem ?? []) {
+        result.set(item["@id"], item);
+      }
+    }
+  }
+  return result;
+}
+function validateProjectionGraph(htmlProjection, narrative, presentation) {
+  const ids = /* @__PURE__ */ new Set();
+  const domIds = /* @__PURE__ */ new Set();
+  const labelledBy = [];
+  const content = contentMap(narrative);
+  const presentationNodes = presentationMap(presentation);
+  const counts = { h1: 0, h2: 0, main: 0, script: 0 };
+  visitProjection(htmlProjection, (node, parent) => {
+    if (typeof node?.["@id"] !== "string" || ids.has(node["@id"])) {
+      invalid();
+    }
+    ids.add(node["@id"]);
+    if (node["@type"] === "html:Element") {
+      if (!ALLOWED_ELEMENTS.has(node.elementName)) {
+        invalid();
+      }
+      if (counts[node.elementName] !== void 0) {
+        counts[node.elementName] += 1;
+      }
+      const children = node.hasChild ?? [];
+      if (children.some((child, index) => child.domOrder !== index + 1)) {
+        invalid();
+      }
+      const hidden = (node.attribute ?? []).some(
+        (attribute) => attribute.attributeName === "hidden"
+      );
+      if (node.hiddenInitially !== void 0 && node.hiddenInitially !== hidden) {
+        invalid();
+      }
+      if (node.projectsContent !== void 0 && !content.has(node.projectsContent) || node.projectsNode !== void 0 && !presentationNodes.has(node.projectsNode) || node.projectsNode === "run:slide-1" && node.hiddenInitially !== false || node.projectsNode === "run:slide-2" && node.hiddenInitially !== true) {
+        invalid();
+      }
+    }
+    if (node["@type"] === "html:Attribute") {
+      if (!ALLOWED_ATTRIBUTES.has(node.attributeName) || typeof node.attributeValue !== "string") {
+        invalid();
+      }
+      if (node.attributeName === "id") {
+        if (domIds.has(node.attributeValue)) {
+          invalid();
+        }
+        domIds.add(node.attributeValue);
+      } else if (node.attributeName === "aria-labelledby") {
+        labelledBy.push(node.attributeValue);
+      } else if (node.attributeName === "tabindex" && node.attributeValue !== "-1") {
+        invalid();
+      } else if (node.attributeName === "data-intent") {
+        const region = presentationNodes.get(node.projectsNode);
+        const expected = INTENT_TOKENS[region?.intent];
+        if (expected === void 0 || node.attributeValue !== expected || parent?.htmlIntent !== expected) {
+          invalid();
+        }
+      }
+      if (node.projectsContent !== void 0 && node.attributeValue !== content.get(node.projectsContent)) {
+        invalid();
+      }
+    }
+    if (node["@type"] === "html:TextNode") {
+      if (typeof node.textNodeValue !== "string" || node.projectsContent !== void 0 && node.textNodeValue !== content.get(node.projectsContent)) {
+        invalid();
+      }
+      if (node.projectsContent === void 0 && node.projectsNode === void 0) {
+        invalid();
+      }
+      if (node.projectsNode !== void 0) {
+        const region = presentationNodes.get(node.projectsNode);
+        if (node.textNodeValue !== region?.buttonLabel) {
+          invalid();
+        }
+      }
+    }
+  });
+  if (counts.main !== 1 || counts.h1 !== 1 || counts.h2 !== 1 || counts.script !== 1 || labelledBy.some((reference) => !domIds.has(reference))) {
+    invalid();
+  }
+}
+function bytesEqual(left, right) {
+  return left.byteLength === right.byteLength && left.every((value, index) => value === right[index]);
+}
+function revalidateHtmlSubset({
+  bytes,
+  carrierNavigation,
+  carrierStyle,
+  htmlProjection,
+  narrative,
+  presentation
+}) {
+  if (Object.prototype.toString.call(bytes) !== "[object Uint8Array]" || !carrierSafe(carrierStyle, "style") || !carrierSafe(carrierNavigation, "script")) {
+    invalid();
+  }
+  let source;
+  try {
+    source = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    invalid();
+  }
+  const parsed = createParser(
+    source,
+    carrierStyle,
+    carrierNavigation
+  ).parse();
+  if (htmlProjection?.["@type"] !== "html:Document" || htmlProjection.hasChild?.length !== 2 || htmlProjection.hasChild[0]?.["@type"] !== "html:Doctype" || htmlProjection.hasChild[0].doctypeName !== "html" || htmlProjection.hasChild[0].domOrder !== 1 || htmlProjection.hasChild[1]?.domOrder !== 2) {
+    invalid();
+  }
+  compareParsedElement(
+    parsed.children[1],
+    htmlProjection.hasChild[1],
+    carrierStyle,
+    carrierNavigation
+  );
+  validateProjectionGraph(htmlProjection, narrative, presentation);
+  const roundTrip = new TextEncoder().encode(serializeParsedDocument(parsed));
+  if (!bytesEqual(bytes, roundTrip)) {
+    invalid();
+  }
+  return true;
+}
+
+// src/core/phase7.js
+async function runPhase7(parsedInputs) {
+  const phase6 = await runPhase6(parsedInputs);
+  const htmlProjection = projectHtmlDocument(
+    phase6.stages.narrative,
+    phase6.stages.presentation
+  );
+  const presentationHtml = renderHtmlDocument(
+    htmlProjection,
+    parsedInputs.carrierStyle,
+    parsedInputs.carrierNavigation
+  );
+  revalidateHtmlSubset({
+    bytes: presentationHtml,
+    carrierNavigation: parsedInputs.carrierNavigation,
+    carrierStyle: parsedInputs.carrierStyle,
+    htmlProjection,
+    narrative: phase6.stages.narrative,
+    presentation: phase6.stages.presentation
+  });
+  const htmlProjectionBytes = serializeJsonLd(htmlProjection);
+  const artifacts = {
+    ...phase6.artifacts,
+    "07-html-projection.jsonld": htmlProjectionBytes,
+    "presentation.html": presentationHtml
+  };
+  const demoHtml = buildDemoHtml(phase6.stages.narrative, presentationHtml);
+  return {
+    ...phase6,
+    artifacts: { ...artifacts, "demo.html": demoHtml },
+    stages: { ...phase6.stages, htmlProjection }
+  };
+}
+
 // src/core/core.js
 var INPUT_ROLES = [
   "context",
@@ -5376,6 +6491,7 @@ var JSON_INPUT_ROLES = /* @__PURE__ */ new Set([
   "userProfile",
   "source"
 ]);
+var CARRIER_INPUT_ROLES = ["carrierStyle", "carrierNavigation"];
 var INPUT_LIMITS = {
   context: [64 * 1024, "CONTEXT_TOO_LARGE"],
   contract: [64 * 1024, "CONTRACT_TOO_LARGE"],
@@ -5442,6 +6558,16 @@ function lowercaseHex(arrayBuffer) {
   }
   return result;
 }
+function decodeLockedAsciiCarrier(bytes) {
+  let result = "";
+  for (const value of bytes) {
+    if (value > 127) {
+      return null;
+    }
+    result += String.fromCharCode(value);
+  }
+  return result;
+}
 async function sha256(bytes) {
   return lowercaseHex(await crypto.subtle.digest("SHA-256", bytes));
 }
@@ -5480,8 +6606,14 @@ async function compileCore(coreRequest) {
       parsedInputs[role] = decoded.text;
     }
   }
+  for (const role of CARRIER_INPUT_ROLES) {
+    parsedInputs[role] = decodeLockedAsciiCarrier(inputs[role]);
+    if (parsedInputs[role] === null) {
+      return failure("INTERNAL_COMPILER_ERROR");
+    }
+  }
   try {
-    await runPhase6(parsedInputs);
+    await runPhase7(parsedInputs);
   } catch (error) {
     if (error instanceof CoreFailure) {
       return failure(error.code, error.violations);

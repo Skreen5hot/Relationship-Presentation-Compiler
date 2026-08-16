@@ -6,17 +6,19 @@ stages.
 
 ## Status
 
-Phases 0 through 6 establish the Edge-Canonical substrate, immutable release
+Phases 0 through 7 establish the Edge-Canonical substrate, immutable release
 inputs, core boundary, both host shells, recoverable Node publication, and the
 closed-world semantic front half:
 locked tools and schemas, a CPS-scanned JSON-LD slice, normative static inputs,
-pinned ontology evidence, a reproducible CycloneDX 1.7 SBOM, the C0–C6 core,
+pinned ontology evidence, a reproducible CycloneDX 1.7 SBOM, the C0–C7 core,
 OS-locked journaled publication, and a deterministic SRI-locked browser bundle
 executed through a supervised dedicated Worker. Request normalization, exact
 resolution, profile equality, contract validation, six-node content selection,
 character provenance, narrative construction, and the target-neutral
-presentation are implemented through Stage 06. HTML projection, rendering,
-manifests, and the GitHub Pages demo are intentionally added later.
+presentation, complete HTML projection, contextual renderer, deterministic
+subset revalidator, and diagnostic demo are implemented through Stage 07.
+Fingerprints, manifests, and the complete fourteen-file success result remain
+for Phase 8.
 
 The normative design is
 [`relationship-presentation-spec-v1_0.md`](relationship-presentation-spec-v1_0.md).
@@ -31,6 +33,8 @@ evidence is in [`docs/phase-4-evidence.md`](docs/phase-4-evidence.md). Phase 5
 semantic evidence is in [`docs/phase-5-evidence.md`](docs/phase-5-evidence.md).
 Phase 6 selection and provenance evidence is in
 [`docs/phase-6-evidence.md`](docs/phase-6-evidence.md).
+Phase 7 projection, rendering, and deployment evidence is in
+[`docs/phase-7-evidence.md`](docs/phase-7-evidence.md).
 
 ## Phase 0 verification
 
@@ -44,8 +48,8 @@ npm run test:phase0:browser
 ```
 
 CI runs the Node gates on Windows and Ubuntu and the Worker gate in pinned
-Chromium. GitHub Pages deployment through GitHub Actions is intentionally added
-with the demo/publication phase, after canonical output exists.
+Chromium. The verified Phase 7 diagnostic site deploys through GitHub Actions
+to [GitHub Pages](https://skreen5hot.github.io/Relationship-Presentation-Compiler/).
 
 ## Phase 1 verification
 
@@ -126,7 +130,8 @@ fixture, validates a late-bound fixture, exercises inert metamorphic changes,
 and covers the Phase 5 negative matrix. The browser suite sends representative
 C3–C6 cases through the supervised Worker host in pinned Chromium and requires
 byte-identical status lines and error reports. This was the historical Phase 5
-boundary; the current Phase 6 core continues through Stage 06.
+boundary; the current core continues through Stage 07 rendering and
+revalidation.
 
 ## Phase 6 verification
 
@@ -143,5 +148,23 @@ late-bound and metamorphic behavior, exercises nonrecursive profile templates,
 and independently reconstructs source-derived text from its declared
 `derivedFrom` nodes. The Chromium suite executes canonical, late-bound, and
 hostile-placeholder inputs through the same supervised Worker bundle. A
-conforming fixture now reaches the explicit Stage 07 boundary; Phase 7 adds the
-HTML projection, renderer, demo, and first GitHub Pages deployment workflow.
+conforming fixture historically reached the explicit Stage 07 boundary; the
+current core continues through the rendered and revalidated presentation.
+
+## Phase 7 verification
+
+Run the Stage 07 projection, renderer, subset-revalidation, full-HTML parsing,
+accessibility, navigation, demo, and real-browser gates:
+
+```text
+npm run test:phase7:node
+npm run test:phase7:browser
+```
+
+The Node gate asserts exact Stage 01–07 and presentation goldens, carrier-byte
+identity, a parser/serializer round trip, the closed adversarial grammar,
+hostile-label escaping, JSDOM accessibility and navigation, and deterministic
+site assembly. The Chromium gate checks the same presentation under a real
+HTML5 engine, including accessible names, hidden semantics, native keyboard
+activation, focus movement, sandboxed `srcdoc`, and network silence. A
+conforming core request now stops at the Phase 8 fingerprint/manifest boundary.

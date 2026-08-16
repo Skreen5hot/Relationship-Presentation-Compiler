@@ -27,13 +27,13 @@ function runPoisoned(coreRequest) {
   });
 }
 
-function assertObservations(observations, digests, decoders) {
+function assertObservations(observations, digests, decoders, encoders = 1) {
   assert.deepEqual(observations.digests, Array(digests).fill("SHA-256"));
   assert.equal(
     observations.decoders.filter(({ fatal }) => fatal === true).length,
     decoders,
   );
-  assert.equal(observations.encoders, 1);
+  assert.equal(observations.encoders, encoders);
 }
 
 test("the Phase 2 corpus is deterministic under poisoned Node globals", async () => {
@@ -64,7 +64,7 @@ test("the Phase 2 corpus is deterministic under poisoned Node globals", async ()
   invalidRequestUtf8.inputs.request = new Uint8Array([0xff]);
 
   const corpus = [
-    [canonical, 5, 6],
+    [canonical, 5, 8, 4],
     [missingInput, 0, 0],
     [unknownInput, 0, 0],
     [nonByteInput, 0, 0],
@@ -74,11 +74,16 @@ test("the Phase 2 corpus is deterministic under poisoned Node globals", async ()
     [invalidRequestUtf8, 5, 6],
   ];
 
-  for (const [coreRequest, digestCount, decoderCount] of corpus) {
+  for (const [coreRequest, digestCount, decoderCount, encoderCount] of corpus) {
     const expected = comparableResult(await compileCore(coreRequest));
     const poisoned = await runPoisoned(coreRequest);
     assert.equal(poisoned.harnessError, undefined);
     assert.deepEqual(comparableResult(poisoned.result), expected);
-    assertObservations(poisoned.observations, digestCount, decoderCount);
+    assertObservations(
+      poisoned.observations,
+      digestCount,
+      decoderCount,
+      encoderCount,
+    );
   }
 });

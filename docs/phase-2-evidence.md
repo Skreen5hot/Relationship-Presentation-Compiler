@@ -53,8 +53,8 @@ and depth 64/65.
 
 At the Phase 2 exit, structurally conforming inputs returned deterministic
 `INTERNAL_COMPILER_ERROR` because C3–C8 were absent. The current core carries
-the canonical fixture through C3–C6 and Stages 01–06 before returning the same
-explicit boundary sentinel for the still-absent Stage 07 onward. The sentinel
+the canonical fixture through C3–C7 and Stages 01–07 before returning the same
+explicit boundary sentinel for the still-absent Phase 8 manifests. The sentinel
 remains an incremental-build behavior, not a v1.0 release success claim.
 
 ## CPS enforcement
@@ -64,11 +64,13 @@ with the Acorn-based closed policy. Negative seeds cover Node built-ins,
 process/Buffer, DOM and network capabilities, time and randomness, locale APIs,
 storage, timers, dynamic code/import, WebAssembly, and worker creation.
 
-The binding harness executes its functional corpus, now including the Phase 6
-JSON-LD, closed-world, and narrative path, in a Node Worker and a real Chromium
-Worker with prohibited globals replaced by throwing traps.
+The binding harness executes its functional corpus, now including the Phase 7
+JSON-LD, closed-world, narrative, and rendering path, in a Node Worker and a
+real Chromium Worker with prohibited globals replaced by throwing traps.
 `TextDecoder`, `TextEncoder`, and WebCrypto are instrumented. Host WebCrypto
 internals are calibrated before observations are cleared, so evidence records
-only the core calls. The canonical structural case observes exactly five
-`"SHA-256"` requests and six fatal UTF-8 decoders. Every case produces
-byte-identical error reports, codes, and status lines across hosts.
+only the core calls. The canonical Phase 7 path observes exactly five
+`"SHA-256"` requests, eight fatal UTF-8 decoders (six structural inputs plus
+rendered-document revalidation and demo embedding), and four encoders
+(presentation, revalidator round trip, demo, and boundary report). Every case
+produces byte-identical error reports, codes, and status lines across hosts.

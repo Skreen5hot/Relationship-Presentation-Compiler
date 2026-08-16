@@ -1,4 +1,4 @@
-name: Phase 0 through 6 gates
+name: Phase 0 through 7 gates
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase0-phase6-${{ github.workflow }}-${{ github.ref }}
+  group: phase0-phase7-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -61,6 +61,9 @@ jobs:
       - name: Verify selection, provenance, narrative, and Stages 04–06
         run: npm run test:phase6:node
 
+      - name: Verify HTML projection, renderer, revalidator, and demo
+        run: npm run test:phase7:node
+
   chromium-worker:
     name: Chromium Worker equivalence
     runs-on: ubuntu-latest
@@ -100,3 +103,6 @@ jobs:
 
       - name: Run Phase 6 narrative and presentation equivalence through the Worker host
         run: npm run test:phase6:browser
+
+      - name: Verify Phase 7 HTML semantics and navigation in Chromium
+        run: npm run test:phase7:browser

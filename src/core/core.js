@@ -2,7 +2,7 @@ import { EMBEDDED_ARTIFACT_DIGESTS } from "./build-constants.js";
 import { CoreFailure } from "./core-failure.js";
 import { buildErrorReport } from "./error-report.js";
 import { decodeUtf8Input, JsonScanError, scanJsonText } from "./json-scan.js";
-import { runPhase6 } from "./phase6.js";
+import { runPhase7 } from "./phase7.js";
 
 const INPUT_ROLES = [
   "context",
@@ -36,6 +36,7 @@ const JSON_INPUT_ROLES = new Set([
   "userProfile",
   "source",
 ]);
+const CARRIER_INPUT_ROLES = ["carrierStyle", "carrierNavigation"];
 const INPUT_LIMITS = {
   context: [64 * 1024, "CONTEXT_TOO_LARGE"],
   contract: [64 * 1024, "CONTRACT_TOO_LARGE"],
@@ -115,6 +116,17 @@ function lowercaseHex(arrayBuffer) {
   return result;
 }
 
+function decodeLockedAsciiCarrier(bytes) {
+  let result = "";
+  for (const value of bytes) {
+    if (value > 0x7f) {
+      return null;
+    }
+    result += String.fromCharCode(value);
+  }
+  return result;
+}
+
 async function sha256(bytes) {
   return lowercaseHex(await crypto.subtle.digest("SHA-256", bytes));
 }
@@ -163,8 +175,15 @@ export async function compileCore(coreRequest) {
     }
   }
 
+  for (const role of CARRIER_INPUT_ROLES) {
+    parsedInputs[role] = decodeLockedAsciiCarrier(inputs[role]);
+    if (parsedInputs[role] === null) {
+      return failure("INTERNAL_COMPILER_ERROR");
+    }
+  }
+
   try {
-    await runPhase6(parsedInputs);
+    await runPhase7(parsedInputs);
   } catch (error) {
     if (error instanceof CoreFailure) {
       return failure(error.code, error.violations);
@@ -172,7 +191,7 @@ export async function compileCore(coreRequest) {
     return failure("INTERNAL_COMPILER_ERROR");
   }
 
-  // Stage 07 and the complete success artifact set arrive in Phases 7–8.
+  // Fingerprints, manifests, and the complete success result arrive in Phase 8.
   return failure("INTERNAL_COMPILER_ERROR");
 }
 
