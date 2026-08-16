@@ -1,4 +1,4 @@
-name: Phase 0 through 2 gates
+name: Phase 0 through 3 gates
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase0-phase2-${{ github.workflow }}-${{ github.ref }}
+  group: phase0-phase3-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -48,6 +48,9 @@ jobs:
 
       - name: Verify the core boundary, structural scanner, and Node CPS harness
         run: npm run test:phase2:node
+
+      - name: Verify Node publication safety, locking, and crash recovery
+        run: npm run test:phase3:node
 
   chromium-worker:
     name: Chromium Worker equivalence

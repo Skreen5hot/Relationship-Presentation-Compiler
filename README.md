@@ -6,13 +6,13 @@ stages.
 
 ## Status
 
-Phases 0 through 2 establish the Edge-Canonical substrate, immutable release
-inputs, and core boundary: locked tool selections, strict lock schemas, a
-CPS-scanned JSON-LD slice, native advisory-lock evidence, the normative
-context/contract/profile, inert carrier payloads, pinned ontology evidence, a
-reproducible CycloneDX 1.7 SBOM, and the C0–C2 compiler shell with poisoned-host
-equivalence. The semantic compiler stages and GitHub Pages demo are
-intentionally added in later phases.
+Phases 0 through 3 establish the Edge-Canonical substrate, immutable release
+inputs, core boundary, and recoverable Node publication layer: locked tool
+selections, strict lock schemas, a CPS-scanned JSON-LD slice, the normative
+context/contract/profile, inert carriers, pinned ontology evidence, a
+reproducible CycloneDX 1.7 SBOM, the C0–C2 compiler shell with poisoned-host
+equivalence, and OS-locked staged publication with journaled recovery. The
+semantic compiler stages and GitHub Pages demo are intentionally added later.
 
 The normative design is
 [`relationship-presentation-spec-v1_0.md`](relationship-presentation-spec-v1_0.md).
@@ -20,7 +20,9 @@ Phase 0 choices and rejected alternatives are in
 [`docs/phase-0-decisions.md`](docs/phase-0-decisions.md). Phase 1 provenance,
 hashes, and deferrals are recorded in
 [`docs/phase-1-evidence.md`](docs/phase-1-evidence.md). Phase 2 boundary and CPS
-evidence is in [`docs/phase-2-evidence.md`](docs/phase-2-evidence.md).
+evidence is in [`docs/phase-2-evidence.md`](docs/phase-2-evidence.md). Phase 3
+publication evidence is in
+[`docs/phase-3-evidence.md`](docs/phase-3-evidence.md).
 
 ## Phase 0 verification
 
@@ -66,3 +68,21 @@ browser-compatible ESM bundle, and scans its complete module graph against the
 closed Common Platform Surface. The Node and real-Chromium suites execute the
 same hostile corpus with prohibited globals poisoned and SHA-256/TextDecoder
 usage instrumented.
+
+## Phase 3 verification
+
+Run the Node publication-safety and crash-recovery matrix:
+
+```text
+npm run test:phase3
+```
+
+The suite exercises fresh publication, existing-output rejection, exact v1.0
+ownership recognition, prior-lineage rejection, output-path safety, immediate
+cross-process lock exclusion, staged replacement, recovery after process death
+at every journal boundary, corrupt-journal fail-closed behavior, and detached
+failure-report placement. It runs on both Windows and Ubuntu in CI.
+
+The end-to-end CLI remains intentionally unavailable: Phase 3 proves placement
+of a supplied fourteen-file byte map, while later semantic phases produce and
+verify the real canonical artifact set.

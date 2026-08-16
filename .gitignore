@@ -7,6 +7,12 @@ playwright-report/
 test-results/
 *.tmp
 *.staging
+*.staging-*
 *.journal
+*.replace-backup
+*.replace-journal.json
+*.replace-journal.json.tmp
+*.error-report.json
+*.lock
 *.lock.tmp
 compiler-error-*.json
