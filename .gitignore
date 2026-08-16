@@ -1,0 +1,12 @@
+node_modules/
+.playwright-browsers/
+.node24/
+build/
+dist/
+playwright-report/
+test-results/
+*.tmp
+*.staging
+*.journal
+*.lock.tmp
+compiler-error-*.json

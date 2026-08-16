@@ -1,0 +1,72 @@
+name: Phase 0 gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase0-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node-platforms:
+    name: Node 24.19 (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up exact Node baseline
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Set up exact npm baseline
+        run: npm install --global npm@11.17.0
+
+      - name: Install locked graph
+        run: npm ci
+
+      - name: Verify runtime lock baseline
+        run: npm run check:runtime
+
+      - name: Run Node, schema, CPS, and native-lock gates
+        run: npm run test:phase0:node
+
+  chromium-worker:
+    name: Chromium Worker equivalence
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up exact Node baseline
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.19.0
+          cache: npm
+
+      - name: Set up exact npm baseline
+        run: npm install --global npm@11.17.0
+
+      - name: Install locked graph
+        run: npm ci
+
+      - name: Install pinned Chromium shell and system dependencies
+        run: node node_modules/playwright/cli.js install --with-deps --only-shell chromium
+
+      - name: Verify runtime lock baseline
+        run: npm run check:runtime
+
+      - name: Run real-browser Worker gate
+        run: npm run test:phase0:browser

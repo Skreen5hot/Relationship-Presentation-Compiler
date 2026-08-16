@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/relationship-presentation-poc/schema/ontology-lock-v1.0.json",
+  "title": "Relationship Presentation Compiler ontology evidence lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["lockVersion", "ontologies"],
+  "properties": {
+    "lockVersion": { "const": "ontology-lock-v1.0" },
+    "ontologies": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        { "$ref": "#/$defs/bfo" },
+        { "$ref": "#/$defs/ccoAgent" },
+        { "$ref": "#/$defs/ccoInformationEntity" }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "bfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "ontologyIri", "versionIri", "sourceReleaseOrTag", "sourceCommit", "localFilename", "sha256", "license"],
+      "properties": {
+        "role": { "const": "bfo" },
+        "ontologyIri": { "const": "http://purl.obolibrary.org/obo/bfo.owl" },
+        "versionIri": { "const": "http://purl.obolibrary.org/obo/bfo/2020/bfo-core.ttl" },
+        "sourceReleaseOrTag": { "const": "release-2024-01-29" },
+        "sourceCommit": { "const": "044490fc5100ffed6df7d4d15cbc167698b6fdee" },
+        "localFilename": { "const": "vendor/ontology/bfo-core.ttl" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "license": { "const": "CC-BY-4.0" },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "ccoAgent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "ontologyIri", "versionIri", "sourceReleaseOrTag", "sourceCommit", "localFilename", "sha256", "license"],
+      "properties": {
+        "role": { "const": "cco-agent" },
+        "ontologyIri": { "const": "https://www.commoncoreontologies.org/AgentOntology" },
+        "versionIri": { "const": "https://www.commoncoreontologies.org/2024-11-05/AgentOntology" },
+        "sourceReleaseOrTag": { "const": "v2.0-2024-11-06" },
+        "sourceCommit": { "const": "510dad76be0ef710b65a421075af912af25342b7" },
+        "localFilename": { "const": "vendor/ontology/AgentOntology.ttl" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "license": { "const": "BSD-3-Clause" },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "ccoInformationEntity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "ontologyIri", "versionIri", "sourceReleaseOrTag", "sourceCommit", "localFilename", "sha256", "license"],
+      "properties": {
+        "role": { "const": "cco-information-entity" },
+        "ontologyIri": { "const": "https://www.commoncoreontologies.org/InformationEntityOntology" },
+        "versionIri": { "const": "https://www.commoncoreontologies.org/2024-11-06/InformationEntityOntology" },
+        "sourceReleaseOrTag": { "const": "v2.0-2024-11-06" },
+        "sourceCommit": { "const": "510dad76be0ef710b65a421075af912af25342b7" },
+        "localFilename": { "const": "vendor/ontology/InformationEntityOntology.ttl" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "license": { "const": "BSD-3-Clause" },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

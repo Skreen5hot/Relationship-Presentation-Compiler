@@ -96,7 +96,7 @@ A service accepting untrusted uploads remains out of scope; the browser embedder
 
 The v1.0 release succeeds if this statement is true:
 
-> Given any JSON-LD 1.1 fixture satisfying the closed-world v1.0 Person Association contract, a matching controlled-language request, the supported profile version, and locked local ontology, context, contract, profile, and carrier artifacts, the compiler core produces the profile-defined two-slide HTML presentation without fixture-specific compiler logic or profile changes — byte-identically under the Node host and the Browser host. Every projected value and compiler decision is traceable, all canonical outputs are deterministic for identical input byte sequences and locked artifacts, the deterministic failure ordering yields exactly one error code for any nonconforming invocation and that code is host-invariant for core-phase failures, and the source graph remains free of projection, profile, rule, layout, HTML, carrier, navigation, and runtime vocabulary in every RDF position.
+> Given any JSON-LD 1.1 fixture satisfying the closed-world v1.0 Person Association contract, a matching controlled-language request, the supported profile version, the five locked static-artifact byte sequences, and a release whose ontology baseline has been verified as Node-host and release evidence, the compiler core produces the profile-defined two-slide HTML presentation without fixture-specific compiler logic or profile changes — byte-identically under the Node host and the Browser host. Every projected value and compiler decision is traceable, all canonical outputs are deterministic for identical input byte sequences and locked artifacts, the deterministic failure ordering yields exactly one error code for any nonconforming invocation and that code is host-invariant for core-phase failures, and the source graph remains free of projection, profile, rule, layout, HTML, carrier, navigation, and runtime vocabulary in every RDF position.
 
 ## 4. Source Basis
 
@@ -174,11 +174,14 @@ No functionality from the v1.0 draft is removed by this partition; each obligati
 
 ### 6.3 Core Boundary Interface
 
-**Scope: Core.** The core exports exactly one entry point:
+**Scope: Core.** The core exports exactly one compilation entry point and one pure host-support helper:
 
 ```text
 compileCore(coreRequest) → Promise<CoreResult>
+buildErrorReport(errorData) → Uint8Array
 ```
+
+`buildErrorReport` is not a second compilation path. It applies the closed error-report rules of Section 42 so a host can produce the same canonical report bytes when supervision or another host phase fails before a `CoreResult` exists.
 
 `CoreRequest` is a plain object with exactly one member, `inputs`, holding exactly eight named `Uint8Array` values:
 
@@ -203,7 +206,7 @@ statusLine            the exact success line of Section 10.5
 coreFingerprint       lowercase-hex SHA-256
 distributionFingerprint lowercase-hex SHA-256
 artifacts             byte map: canonical filename → Uint8Array,
-                      containing exactly the thirteen files of Section 24
+                      containing exactly the fourteen files of Section 24
 ```
 
 `CoreResult` on failure:
@@ -213,8 +216,10 @@ status                "error"
 statusLine            "status=error code=<CODE>" per Section 10.5
 code                  the single governing error code
 errorReport           Uint8Array of Section 42 bytes, or absent where
-                      no report is defined for the code
+                      Section 42 explicitly permits omission
 ```
+
+`CoreResult` describes an invocation that reached `compileCore`. A host failure that occurs without a `CoreResult` MUST use a `HostFailureResult` with the same four failure members (`status`, `statusLine`, `code`, `errorReport`). The Browser reference harness returns `CoreResult | HostFailureResult`; the Node host maps either result to the exit and terminal surfaces of Sections 10.4 and 10.5.
 
 `compileCore` MUST be a pure function of the input bytes and the packaging-injected constants of Section 6.7. Two invocations with identical inputs MUST return identical `CoreResult` values under any host, byte for byte. The Promise is required only because the Common Platform Surface digest primitive is asynchronous; no scheduling nondeterminism may influence results.
 
@@ -429,7 +434,7 @@ Two HTML outputs are significantly equivalent if, after standards-compliant HTML
 
 - **Core**: the pure module graph exporting `compileCore` and the pure helpers this specification assigns to it, constrained by the Common Platform Surface.
 - **Host profile**: the normative binding of acquisition, attestation, supervision, status emission, and placement for one execution environment. v1.0 defines two: Node host (Section 10) and Browser host (Section 11).
-- **Canonical artifact set**: the byte map of exactly the thirteen files listed in Section 24, as produced by the core on success.
+- **Canonical artifact set**: the byte map of exactly the fourteen files listed in Section 24, as produced by the core on success.
 - **Status line**: the single LF-terminated success or error line whose exact string the core produces in `CoreResult.statusLine` and whose emission is a host act.
 
 ## 9. Repository Structure
@@ -646,7 +651,8 @@ The core produces both strings as `CoreResult.statusLine` for core-phase outcome
 The Node host MUST execute `compileCore` inside a `worker_threads` worker it can terminate, with:
 
 - a 40-second parent wall-clock timer; expiry terminates the worker and reports `BUILD_TIMEOUT`;
-- worker `resourceLimits` sized to an intended 256 MiB guard; resource-limit termination reports `MEMORY_LIMIT_EXCEEDED`.
+- worker `resourceLimits` sized to an intended 256 MiB guard; resource-limit termination reports `MEMORY_LIMIT_EXCEEDED`;
+- any other abnormal worker termination without a `CoreResult` reports `INTERNAL_COMPILER_ERROR` through a `HostFailureResult`.
 
 The host MUST NOT claim to enforce a wall-clock timeout around uninterruptible work in the same event loop. Where the operating system provides a stronger process-memory or job-object limit, release packaging SHOULD use it; if exact resident-memory enforcement is unavailable, documentation MUST describe 256 MiB as an intended guard rather than a proven hard cap. Guard terminations vary with environment and are excluded from the byte-determinism guarantee; conformance tests run on a documented minimum environment where all valid fixtures within structural limits complete without triggering guards.
 
@@ -675,13 +681,14 @@ The reference harness MUST:
 
 - run `compileCore` in a dedicated Worker;
 - apply a 40-second timer; expiry calls `Worker.terminate()` and reports `BUILD_TIMEOUT`;
-- report abnormal worker termination without a `CoreResult` as `INTERNAL_COMPILER_ERROR`.
+- report abnormal worker termination without a `CoreResult` as `INTERNAL_COMPILER_ERROR`;
+- return those host-phase outcomes as the `HostFailureResult` defined in Section 6.3.
 
 No standard browser API caps worker memory deterministically; `MEMORY_LIMIT_EXCEEDED` is therefore not applicable to the Browser host (Appendix A). Engine out-of-memory kills surface as abnormal termination. This asymmetry is documented, not hidden, and guard terminations are excluded from the equivalence corpus.
 
 ### 11.3 Publication Handoff
 
-On success the harness returns the `CoreResult` to the embedder. The embedder owns placement — downloads, in-page display, transmission, or storage — and v1.0 makes no durability claim in the browser. Integrity travels with the artifact set itself: any conforming verifier can validate the distribution and core manifests over the returned byte map (Section 39) with no filesystem involved. Because there is no shared mutable publication target in this profile, the publication-exclusion requirement of Section 15.2 is vacuously satisfied here; Section 11.6 names the required binding for embedders that create one.
+On success the harness returns the `CoreResult` to the embedder. The embedder owns placement — downloads, in-page display, transmission, or storage — and v1.0 makes no durability claim in the browser. Integrity travels with the artifact set itself: any conforming verifier can validate the distribution and core manifests over the returned byte map (Section 39) with no filesystem involved. Because this profile has no shared mutable publication target, the publication-exclusion requirement of Section 15.2 is not applicable. Section 11.6 defines an optional profile for embedders that create such a target.
 
 ### 11.4 Browser Host Phase Order
 
@@ -691,15 +698,15 @@ The Browser host phase sequence is Section 12.3.
 
 The following codes cannot arise under the Browser host and are marked accordingly in Appendix A: `UNKNOWN_OPTION`, `DUPLICATE_OPTION`, `INVALID_CLI_OPTIONS`, `UNSAFE_INPUT_PATH`, `INPUT_CHANGED_DURING_LOAD`, `RUNTIME_LOCK_MISMATCH`, `PACKAGE_LOCK_MISMATCH`, `ONTOLOGY_LOCK_MISMATCH`, `SBOM_MISMATCH`, `INPUT_OUTPUT_OVERLAP`, `UNSAFE_OUTPUT_PATH`, `OUTPUT_EXISTS`, `OUTPUT_NOT_OWNED`, `OUTPUT_LOCKED`, `OUTPUT_RECOVERY_REQUIRED`, `MEMORY_LIMIT_EXCEEDED`.
 
-### 11.6 Informative: OPFS Publication Profile
+### 11.6 Optional OPFS Publication Profile
 
-This subsection is informative. An embedder that implements durable publication into the Origin Private File System, mirroring the sentinel, ownership, staging, journal, and recovery semantics of Sections 15 and 41, MUST guard the target with the Web Locks API:
+This profile is not required for v1.0 Browser-host conformance. An embedder that claims conformance to this optional profile and implements durable publication into the Origin Private File System, mirroring the sentinel, ownership, staging, journal, and recovery semantics of Sections 15 and 41, MUST guard the target with the Web Locks API:
 
 ```text
 navigator.locks.request(name, { ifAvailable: true }, holder)
 ```
 
-with `name` derived deterministically from the output identifier. Web Locks are advisory and are released automatically when the holding context terminates — the same semantic class as `flock`/`LockFileEx`, which is why they are the required binding here. Failure to acquire maps to `OUTPUT_LOCKED`. This profile is not part of the v1.0 conformance surface.
+with `name` derived deterministically from the output identifier. Web Locks are advisory and are released automatically when the holding context terminates — the same semantic class as `flock`/`LockFileEx`, which is why they are the required binding here. Failure to acquire maps to `OUTPUT_LOCKED`. Implementing this profile is optional; once conformance to it is claimed, these requirements are normative.
 
 ## 12. Deterministic Failure Ordering
 
@@ -816,6 +823,8 @@ Normative baseline at the v1.0 specification date:
 `domTestImplementation` is reclassified in this cut as a conformance-evidence dependency: it is exercised only by the test suite (Sections 45.6, 45.7, 45.21). The shipped core performs subset revalidation (Section 32.5) and has no DOM dependency. The member is retained so the evidence toolchain remains locked.
 
 `sourceCommit` follows the packaging-injection semantics of Section 6.7; the value here MUST equal the injected core constant. The Node host verifies its own `compiler.name` and `compiler.version` against the lock at startup; it cannot and does not verify `sourceCommit` at runtime.
+
+Because the normative CLI is launched with `node index.js`, npm is not a parent process during compilation. For runtime-lock verification, “npm version” means the npm installation associated with the executing Node distribution: the host resolves its manifest from `process.execPath` through the fixed Windows or Unix distribution layout and MUST NOT search `PATH` to choose this evidence. Bootstrap and CI MUST install and execute that same exact npm version before `npm ci` evidence is accepted.
 
 The Node host MUST fail with `RUNTIME_LOCK_MISMATCH` when the executing Node version, npm version, or compiler name/version does not match the populated lock. Mismatches attributed to other locks use their own codes per Section 13.6.
 
@@ -1044,7 +1053,7 @@ Before any output mutation:
 1. resolve the real path of the output parent directory;
 2. reject output paths whose final component is a symlink → `UNSAFE_OUTPUT_PATH`;
 3. reject existing output directories that are symlinks → `UNSAFE_OUTPUT_PATH`;
-4. reject outputs inside the compiler package, inside any input directory, or equal to any input path → `INPUT_OUTPUT_OVERLAP`;
+4. reject outputs inside the compiler package, except the exact package-root `dist` target defined by default mode; reject every output inside any input directory or equal to any input path → `INPUT_OUTPUT_OVERLAP`;
 5. reject devices, sockets, pipes, and other special files → `UNSAFE_OUTPUT_PATH`;
 6. compare identity with device and inode (or platform equivalent), not string prefixes;
 7. when `--replace` is absent and the output target exists → `OUTPUT_EXISTS` (checked in phase N3 of Section 12.2, before compilation).
@@ -1058,6 +1067,8 @@ The Node.js standard library provides no such lock; `node:fs` exposes neither `f
 Marker-file schemes (exclusive-create of an ordinary file, PID files, mkdir locks) MUST NOT be used as the exclusion mechanism: a killed process leaves a stale marker that either blocks future builds or invites unsafe automatic cleanup, and v1.0 chooses neither. The OS-held lock is the mechanism precisely because the operating system releases it when the holder dies.
 
 If the lock is already held, the compiler MUST fail immediately with `OUTPUT_LOCKED`. It MUST NOT wait, retry, or steal. Lock-file content is not significant; its existence when unheld is not an error.
+
+Immediately after acquiring the lock, the Node host MUST repeat the target existence, identity, symlink, special-file, and `--replace` checks before staging. If a target appeared after phase N3 and `--replace` is absent, the host MUST fail with `OUTPUT_EXISTS`; under `--replace`, it MUST apply Section 15.4. This closes the N3-to-N5 concurrent-creation race.
 
 ### 15.3 Staging
 
@@ -1715,7 +1726,7 @@ v1.0 has seven intermediate JSON-LD artifacts plus manifests and HTML carriers:
 7. Create a complete HTML document projection.
 8. Render, revalidate, and produce the canonical artifact set.
 
-The canonical artifact set comprises exactly these thirteen files:
+The canonical artifact set comprises exactly these fourteen files:
 
 ```text
 .relationship-presentation-poc-owned
@@ -2960,7 +2971,7 @@ Required logical content:
   "sourceContaminationDetected": false,
   "escapingApplied": true,
   "renderedDocumentValidated": true,
-  "accessibilityChecksPassed": true,
+  "accessibilityStructureValidated": true,
   "artifactHashesRecorded": true,
   "coreFingerprint": "<sha256>"
 }
@@ -2973,9 +2984,10 @@ The report MUST NOT claim:
 - `fixtureParametric`;
 - `productionReady`;
 - `hostEquivalent`;
+- `accessibilityConformanceVerified`;
 - `distributionManifestPresent` or `distributionVerified`.
 
-Those properties are established by the test suite and release evidence, not by a single run. The report MUST NOT include the distribution fingerprint.
+`accessibilityStructureValidated` means only that the core checked the structural accessibility invariants within the deterministic subset revalidator. Independent accessibility-tree and behavior evidence remains a release obligation under Sections 33 and 45.21. The prohibited properties are established by the test suite and release evidence, not by a single run. The report MUST NOT include the distribution fingerprint.
 
 ## 39. Distribution Manifest
 
@@ -3050,7 +3062,7 @@ Recognition rules: v1.0 recognizes only `sentinelVersion` `owned-output-v1.0` as
 
 ## 42. Error Reports
 
-Failure-report bytes are produced by the core-exported builder for every governing code for which this section defines content; the Node host writes them to the sibling path `<output-basename>.error-report.json` (Section 15.8), and the Browser host returns them in `CoreResult.errorReport`.
+Failure-report bytes are produced by the core-exported builder. Every failure code in Appendix A has a report shape: `CoreResult.errorReport` and `HostFailureResult.errorReport` MUST therefore be present for every compilation or supervision failure. The only invocations with no report are the successful informational modes `--help` and `--version`, which are not failures. The Node host writes report bytes to the sibling path `<output-basename>.error-report.json` only after the output parent has passed the N3 safety checks; before that point it emits only the status line. The Browser host returns the bytes in the applicable result object.
 
 Required logical content:
 
@@ -3068,6 +3080,18 @@ Required logical content:
   ]
 }
 ```
+
+For any governing code with no independently reportable violations, the canonical logical content is:
+
+```json
+{
+  "errorVersion": "error-report-v1.0",
+  "code": "INVALID_CORE_REQUEST",
+  "violations": []
+}
+```
+
+`contractVersion` MUST appear only for `FIXTURE_CONTRACT_FAILED` and `TOO_MANY_VIOLATIONS`. The plain-JSON key order is `errorVersion`, `code`, `contractVersion` when present, then `violations`; serialization follows the UTF-8, LF, and terminal-LF discipline of Section 36.4.
 
 Rules:
 
@@ -3202,7 +3226,7 @@ Assert the Stage 8 byte-production order by content: no core-listed file contain
 
 ### 45.10 Lock Tests
 
-For each lock, a targeted mutation MUST fail with that lock's own code: Node/npm/compiler mismatch → `RUNTIME_LOCK_MISMATCH`; dependency graph drift → `PACKAGE_LOCK_MISMATCH`; carrier/context/contract/profile byte change → `ARTIFACT_LOCK_MISMATCH` under both hosts; vendored ontology change → `ONTOLOGY_LOCK_MISMATCH`; SBOM absence or drift → `SBOM_MISMATCH`. A test with two simultaneous lock defects MUST emit the code of the earlier step in Section 13.6. The suite MUST re-verify the embedded-digest equality of Section 13.8 against `artifact.lock.json`.
+For each lock, a targeted mutation MUST fail with that lock's own code: Node/npm/compiler mismatch → `RUNTIME_LOCK_MISMATCH`; dependency graph drift → `PACKAGE_LOCK_MISMATCH`; carrier/context/contract/locked-canonical-profile byte change → `ARTIFACT_LOCK_MISMATCH` under both hosts; vendored ontology change → `ONTOLOGY_LOCK_MISMATCH`; SBOM absence or drift → `SBOM_MISMATCH`. A changed user-supplied profile remains a profile-contract case, not an artifact-lock case. A test with two simultaneous lock defects MUST emit the code of the earlier step in Section 13.6. The suite MUST re-verify the embedded-digest equality of Section 13.8 against `artifact.lock.json`.
 
 ### 45.11 Context and JSON-LD Guard Tests
 
@@ -3248,6 +3272,8 @@ Execute the corpus twice:
 
 1. through the Node host end-to-end;
 2. through the release bundle inside at least one pinned headless real browser engine, via the reference worker harness.
+
+`INVALID_CORE_REQUEST` is the C0 boundary exception to “Node host end-to-end”: its equivalence cases invoke `compileCore` directly under Node and through the browser bundle, because a conforming Node host cannot assemble an invalid request without fault injection.
 
 Assert, per case: byte-identical canonical artifact sets on success; identical core and distribution fingerprints; identical status lines; identical governing codes and identical error-report bytes on failure.
 
@@ -3397,14 +3423,14 @@ The claim that the architecture is profile-driven, rather than merely profile-pa
 ---
 ## Appendix A: Error Code Registry
 
-Codes are grouped by category. Exactly one code is emitted per failure. The exit class is the Node host mapping to Section 10.4; the Browser host returns the code itself in `CoreResult`. Host applicability: **Core** — detected by the core, arises identically under both hosts; **Node** / **Browser** — arises only under that host; **Both** — may be raised by either layer under either host.
+Codes are grouped by category. Exactly one code is emitted per failure. The exit class is the Node host mapping to Section 10.4; the Browser host returns the code in `CoreResult` or `HostFailureResult`. Host applicability: **Core** — detected by the core, arises identically under both hosts; **Node** / **Browser** — arises only under that host; **Both** — may be raised by either layer under either host.
 
 | Category | Code | Exit | Hosts |
 |---|---|---:|---|
 | CLI | `UNKNOWN_OPTION` | 2 | Node |
 | CLI | `DUPLICATE_OPTION` | 2 | Node |
 | CLI | `INVALID_CLI_OPTIONS` | 2 | Node |
-| Core interface | `INVALID_CORE_REQUEST` | 2 | Both |
+| Core interface | `INVALID_CORE_REQUEST` | 2 | Core |
 | Input acquisition | `UNSAFE_INPUT_PATH` | 3 | Node |
 | Input acquisition | `INPUT_CHANGED_DURING_LOAD` | 3 | Node |
 | Input | `SOURCE_TOO_LARGE` | 3 | Core |
@@ -3507,16 +3533,16 @@ This appendix records the deltas between the unratified v1.0 draft of 2026-08-15
 |---|---|---|
 | EC-01 | Re-cut v1.0 as edge-canonical rather than shipping a non-EC 1.0 into an EC-first portfolio; the prior draft is marked superseded-unratified and no rule semantics change | Front matter |
 | EC-02 | Strict host-independent core manifest: environment attestation (Node host lock, package lock, SBOM, bundle SRI) is host and release evidence, never per-run manifest content; the core fingerprint is therefore host-invariant | 6.1, 13, 37, 45.20 |
-| EC-03 | Static-artifact enforcement via packaging-injected embedded digests, making `ARTIFACT_LOCK_MISMATCH` a core code with Both applicability; Node host lock verification retained as the evidence chain | 6.7, 13.4, 13.8, 12.5 |
-| EC-04 | Ontology lock scoped to Node host verification and release evidence; the vendored ontologies are not core inputs and the core manifest does not list what the core cannot hash | 13.3, 37 |
-| EC-05 | Runtime DOM dependency replaced by a project-owned deterministic subset revalidator with a byte round-trip; full-HTML5 parsing (conformance DOM implementation plus at least one real engine) demoted to release evidence | 32.5, 45.21, 45.22 |
+| EC-03 | Static-artifact enforcement via packaging-injected embedded digests, making `ARTIFACT_LOCK_MISMATCH` a core code with Both applicability; Node host lock verification retained as the evidence chain; lock mutation tests distinguish the canonical profile from the user profile | 6.7, 13.4, 13.8, 12.5, 45.10 |
+| EC-04 | Ontology lock scoped to Node host verification and release evidence; the vendored ontologies are not core inputs, the success criterion states that scope, and the core manifest does not list what the core cannot hash | 3, 13.3, 37 |
+| EC-05 | Runtime DOM dependency replaced by a project-owned deterministic subset revalidator with a byte round-trip; full-HTML5 parsing (conformance DOM implementation plus at least one real engine) demoted to release evidence; the run report claims structural accessibility validation only | 32.5, 38, 45.21, 45.22 |
 | EC-06 | Common Platform Surface defined as a closed allowlist; enforced by static scan plus poisoned-global harness; `WebAssembly` banned in the v1.0 core for auditability | 6.4, 6.5, 45.18, 45.19 |
-| EC-07 | `filesystemLock` scoped to the Node host; the publication-exclusion requirement is host-conditional; Web Locks (`navigator.locks`, auto-released on context termination) named as the required binding in the informative OPFS profile, since the v1.0 Browser host has no shared mutable target | 11.3, 11.6, 15.2 |
-| EC-08 | Browser publication is embedder handoff of the canonical artifact byte map; no durability claim; the distribution verifier operates over byte maps, filesystem optional | 11.3, 39 |
+| EC-07 | `filesystemLock` scoped to the Node host; publication exclusion is not applicable to the v1.0 Browser host; Web Locks (`navigator.locks`, auto-released on context termination) are the binding for the optional normative OPFS profile | 11.3, 11.6, 15.2 |
+| EC-08 | Browser publication is embedder handoff of the fourteen-file canonical artifact byte map; no durability claim; the distribution verifier operates over byte maps, filesystem optional | 11.3, 24, 39 |
 | EC-09 | Core API is asynchronous because the CPS digest primitive is; scheduling MUST NOT influence bytes | 6.3, 36.1 |
 | EC-10 | Browser host artifact is one deterministic ES-module bundle with SRI, recorded in `browser-host.lock.json`; bundler locked and SBOM-enumerated; reproducible-bundle evidence required | 13.5, 13.7, 49.1 |
-| EC-11 | Supervision via terminable workers in both hosts; `BUILD_TIMEOUT` Both; `MEMORY_LIMIT_EXCEEDED` Node-normative only; abnormal worker termination without a result reports `INTERNAL_COMPILER_ERROR` | 10.6, 11.2, App. A |
-| EC-12 | `INVALID_CORE_REQUEST` added (exit 2, Both); the error-report builder is core-exported so host-phase failures share the deterministic reporting path | 6.3, 15.8, 42, App. A |
+| EC-11 | Supervision via terminable workers in both hosts; `BUILD_TIMEOUT` Both; `MEMORY_LIMIT_EXCEEDED` Node-normative only; abnormal worker termination without a result reports `INTERNAL_COMPILER_ERROR` through a `HostFailureResult` | 6.3, 10.6, 11.2, App. A |
+| EC-12 | `INVALID_CORE_REQUEST` added (exit 2, Core); `compileCore` is the sole compilation entry point and the pure error-report helper is separately exported so host-phase failures share the closed deterministic reporting path | 6.3, 15.8, 42, App. A |
 
 ### D.2 Section Map, Draft → Re-Cut
 

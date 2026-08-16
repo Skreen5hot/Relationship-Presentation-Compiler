@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/relationship-presentation-poc/schema/artifact-lock-v1.0.json",
+  "title": "Relationship Presentation Compiler static-artifact lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["lockVersion", "artifacts"],
+  "properties": {
+    "lockVersion": { "const": "artifact-lock-v1.0" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "prefixItems": [
+        { "$ref": "#/$defs/context" },
+        { "$ref": "#/$defs/contract" },
+        { "$ref": "#/$defs/profile" },
+        { "$ref": "#/$defs/style" },
+        { "$ref": "#/$defs/navigation" }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "sha256"],
+      "properties": {
+        "role": { "const": "context" },
+        "path": { "const": "contexts/poc.context.jsonld" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "sha256"],
+      "properties": {
+        "role": { "const": "contract" },
+        "path": { "const": "contract/person-association-contract.jsonld" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "sha256"],
+      "properties": {
+        "role": { "const": "supported-profile" },
+        "path": { "const": "profiles/two-slide-explainer.jsonld" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "style": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "sha256"],
+      "properties": {
+        "role": { "const": "carrier-style" },
+        "path": { "const": "carrier/presentation.css" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "navigation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "sha256"],
+      "properties": {
+        "role": { "const": "carrier-navigation" },
+        "path": { "const": "carrier/navigation.js" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}

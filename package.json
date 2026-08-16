@@ -1,0 +1,36 @@
+{
+  "name": "relationship-presentation-poc",
+  "version": "1.0.0",
+  "description": "Deterministic edge-canonical relationship presentation compiler",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": "24.19.0",
+    "npm": "11.17.0"
+  },
+  "packageManager": "npm@11.17.0",
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  },
+  "scripts": {
+    "build:phase0": "node scripts/build-phase0-browser.mjs",
+    "check:runtime": "node scripts/verify-runtime.mjs",
+    "test:phase0:node": "npm run build:phase0 && node --test test/phase0/decision-record.test.mjs test/phase0/filesystem-lock.test.mjs test/phase0/jsonld-cps.test.mjs",
+    "test:phase0:browser": "npm run build:phase0 && node --test test/phase0/browser-worker.test.mjs",
+    "test:phase0": "npm run check:runtime && npm run test:phase0:node && npm run test:phase0:browser"
+  },
+  "dependencies": {
+    "fs-native-extensions": "1.5.0",
+    "jsonld": "9.0.0"
+  },
+  "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "6.0.1",
+    "acorn": "8.18.0",
+    "ajv": "8.20.0",
+    "dom-accessibility-api": "0.7.1",
+    "esbuild": "0.28.2",
+    "jsdom": "30.0.1",
+    "playwright": "1.62.1"
+  }
+}

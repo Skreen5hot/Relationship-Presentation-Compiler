@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/relationship-presentation-poc/schema/runtime-lock-v1.0.json",
+  "title": "Relationship Presentation Compiler Node host lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lockVersion",
+    "node",
+    "packageManager",
+    "jsonLdProcessor",
+    "domTestImplementation",
+    "filesystemLock",
+    "compiler",
+    "packageLockSha256",
+    "artifactLockSha256",
+    "ontologyLockSha256",
+    "sbom"
+  ],
+  "properties": {
+    "lockVersion": { "const": "runtime-lock-v1.0" },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "releaseLine", "releaseStatusAtSpecification"],
+      "properties": {
+        "version": { "const": "24.19.0" },
+        "releaseLine": { "const": "24.x" },
+        "releaseStatusAtSpecification": { "const": "Active LTS" }
+      }
+    },
+    "packageManager": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "const": "npm" },
+        "version": { "const": "11.17.0" }
+      }
+    },
+    "jsonLdProcessor": {
+      "$ref": "#/$defs/lockedJsonLdProcessor"
+    },
+    "domTestImplementation": {
+      "$ref": "#/$defs/lockedDomImplementation"
+    },
+    "filesystemLock": {
+      "$ref": "#/$defs/lockedFilesystemLock"
+    },
+    "compiler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "sourceCommit"],
+      "properties": {
+        "name": { "const": "relationship-presentation-poc" },
+        "version": { "const": "1.0.0" },
+        "sourceCommit": { "$ref": "#/$defs/commit" }
+      }
+    },
+    "packageLockSha256": { "$ref": "#/$defs/sha256" },
+    "artifactLockSha256": { "$ref": "#/$defs/sha256" },
+    "ontologyLockSha256": { "$ref": "#/$defs/sha256" },
+    "sbom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "format", "specVersion", "mediaType", "sha256"],
+      "properties": {
+        "path": { "const": "sbom.json" },
+        "format": { "const": "CycloneDX JSON" },
+        "specVersion": { "const": "1.7" },
+        "mediaType": { "const": "application/vnd.cyclonedx+json; version=1.7" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "integrity": {
+      "type": "string",
+      "pattern": "^sha512-[A-Za-z0-9+/]+={0,2}$"
+    },
+    "lockedJsonLdProcessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package", "version", "integrity"],
+      "properties": {
+        "package": { "const": "jsonld" },
+        "version": { "const": "9.0.0" },
+        "integrity": { "$ref": "#/$defs/integrity" }
+      }
+    },
+    "lockedDomImplementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package", "version", "integrity"],
+      "properties": {
+        "package": { "const": "jsdom" },
+        "version": { "const": "30.0.1" },
+        "integrity": { "$ref": "#/$defs/integrity" }
+      }
+    },
+    "lockedFilesystemLock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package", "version", "integrity"],
+      "properties": {
+        "package": { "const": "fs-native-extensions" },
+        "version": { "const": "1.5.0" },
+        "integrity": { "$ref": "#/$defs/integrity" }
+      }
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/relationship-presentation-poc/schema/browser-host-lock-v1.0.json",
+  "title": "Relationship Presentation Compiler browser host lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["lockVersion", "bundle", "bundler", "compiler", "engineBaselines"],
+  "properties": {
+    "lockVersion": { "const": "browser-host-lock-v1.0" },
+    "bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "sriIntegrity"],
+      "properties": {
+        "path": { "const": "browser/relationship-presentation-core.bundle.mjs" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "sriIntegrity": {
+          "type": "string",
+          "pattern": "^sha384-[A-Za-z0-9+/]+={0,2}$"
+        }
+      }
+    },
+    "bundler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package", "version", "integrity"],
+      "properties": {
+        "package": { "const": "esbuild" },
+        "version": { "const": "0.28.2" },
+        "integrity": { "$ref": "#/$defs/integrity" }
+      }
+    },
+    "compiler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "const": "relationship-presentation-poc" },
+        "version": { "const": "1.0.0" }
+      }
+    },
+    "engineBaselines": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        { "$ref": "#/$defs/chromium" },
+        { "$ref": "#/$defs/firefox" },
+        { "$ref": "#/$defs/webkit" }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "integrity": {
+      "type": "string",
+      "pattern": "^sha512-[A-Za-z0-9+/]+={0,2}$"
+    },
+    "chromium": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine", "version"],
+      "properties": {
+        "engine": { "const": "Chromium" },
+        "version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "firefox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine", "version"],
+      "properties": {
+        "engine": { "const": "Firefox" },
+        "version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "webkit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine", "version"],
+      "properties": {
+        "engine": { "const": "WebKit" },
+        "version": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

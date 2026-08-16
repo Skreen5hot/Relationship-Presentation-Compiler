@@ -1,0 +1,14 @@
+* text=auto eol=lf
+
+*.js text eol=lf
+*.json text eol=lf
+*.jsonld text eol=lf
+*.md text eol=lf
+*.mjs text eol=lf
+*.txt text eol=lf
+*.yml text eol=lf
+
+# These release inputs and golden artifacts are hashed as exact byte sequences.
+carrier/** -text
+expected/** -text
+vendor/ontology/** -text
