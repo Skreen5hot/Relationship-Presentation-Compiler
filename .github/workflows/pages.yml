@@ -1,4 +1,4 @@
-name: Deploy Phase 8 verified artifact set to Pages
+name: Deploy Phase 9 verified artifact set to Pages
 
 on:
   push:
@@ -32,8 +32,8 @@ jobs:
       - name: Install locked graph
         run: npm ci
 
-      - name: Verify Phase 8 manifests and generated site
-        run: npm run test:phase8:node
+      - name: Verify Phase 8 artifacts and Phase 9 failure surfaces
+        run: npm run test:phase8:node && npm run test:phase9:node
 
       - name: Generate static site
         run: npm run generate:phase8:site

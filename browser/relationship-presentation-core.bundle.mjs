@@ -249,9 +249,9 @@ var require_util = __commonJS({
     };
     api.parseLinkHeader = (header) => {
       const rval = {};
-      const entries = header.match(REGEX_LINK_HEADERS);
-      for (let i = 0; i < entries.length; ++i) {
-        let match = entries[i].match(REGEX_LINK_HEADER);
+      const entries2 = header.match(REGEX_LINK_HEADERS);
+      for (let i = 0; i < entries2.length; ++i) {
+        let match = entries2[i].match(REGEX_LINK_HEADER);
         if (!match) {
           continue;
         }
@@ -1697,11 +1697,11 @@ var require_context = __commonJS({
         return inverse;
       }
       function _buildIriMap(iriMap, key2, idx) {
-        const entries = iriMap[key2];
+        const entries2 = iriMap[key2];
         const next = iriMap[key2] = {};
         let iri;
         let letter;
-        for (const entry of entries) {
+        for (const entry of entries2) {
           iri = entry.iri;
           if (idx >= iri.length) {
             letter = "";
@@ -3865,8 +3865,99 @@ function fail(code, violations = []) {
   throw new CoreFailure(code, violations);
 }
 
+// src/core/error-codes.js
+init_define_RPC_ARTIFACT_DIGESTS();
+var entries = [
+  ["CLI", "UNKNOWN_OPTION", 2, "Node"],
+  ["CLI", "DUPLICATE_OPTION", 2, "Node"],
+  ["CLI", "INVALID_CLI_OPTIONS", 2, "Node"],
+  ["Core interface", "INVALID_CORE_REQUEST", 2, "Core"],
+  ["Input acquisition", "UNSAFE_INPUT_PATH", 3, "Node"],
+  ["Input acquisition", "INPUT_CHANGED_DURING_LOAD", 3, "Node"],
+  ["Input", "SOURCE_TOO_LARGE", 3, "Core"],
+  ["Input", "REQUEST_TOO_LARGE", 3, "Core"],
+  ["Input", "PROFILE_TOO_LARGE", 3, "Core"],
+  ["Input", "CONTEXT_TOO_LARGE", 3, "Core"],
+  ["Input", "CONTRACT_TOO_LARGE", 3, "Core"],
+  ["Input", "INVALID_UTF8", 3, "Core"],
+  ["Input", "UTF8_BOM_NOT_SUPPORTED", 3, "Core"],
+  ["JSON", "JSON_TOO_DEEP", 3, "Core"],
+  ["JSON", "DUPLICATE_JSON_MEMBER", 3, "Core"],
+  ["JSON-LD", "TOO_MANY_TRIPLES", 3, "Core"],
+  ["JSON-LD", "TOO_MANY_CONTEXT_TERMS", 3, "Core"],
+  ["JSON-LD", "REMOTE_CONTEXT_NOT_SUPPORTED", 3, "Core"],
+  ["JSON-LD", "LOCAL_CONTEXT_NOT_APPROVED", 3, "Core"],
+  ["JSON-LD", "CONTEXT_TERM_REDEFINITION", 3, "Core"],
+  ["JSON-LD", "JSONLD_IMPORT_NOT_SUPPORTED", 3, "Core"],
+  ["JSON-LD", "OWL_IMPORTS_NOT_SUPPORTED", 3, "Core"],
+  ["JSON-LD", "BLANK_NODE_NOT_SUPPORTED", 3, "Core"],
+  ["JSON-LD", "NAMED_GRAPH_NOT_SUPPORTED", 3, "Core"],
+  ["Request", "REQUEST_GRAMMAR_MISMATCH", 1, "Core"],
+  ["Request", "DESIGNATOR_TOO_LONG", 1, "Core"],
+  ["Request", "INVALID_CRITICAL_STRING", 1, "Core"],
+  ["Profile", "UNSUPPORTED_PROFILE", 1, "Core"],
+  ["Profile", "UNSUPPORTED_PROFILE_CONTRACT", 1, "Core"],
+  ["Fixture", "FIXTURE_CONTRACT_FAILED", 1, "Core"],
+  ["Fixture", "LABEL_TOO_LONG", 1, "Core"],
+  ["Fixture", "SOURCE_GRAPH_CONTAMINATED", 1, "Core"],
+  ["Fixture", "LOCAL_CONTRACT_VOCABULARY_VIOLATION", 1, "Core"],
+  ["Fixture", "SOURCE_NAMESPACE_NOT_ALLOWED", 1, "Core"],
+  ["Reporting", "TOO_MANY_VIOLATIONS", 1, "Core"],
+  ["Lock", "RUNTIME_LOCK_MISMATCH", 4, "Node"],
+  ["Lock", "PACKAGE_LOCK_MISMATCH", 4, "Node"],
+  ["Lock", "ARTIFACT_LOCK_MISMATCH", 4, "Both"],
+  ["Lock", "ONTOLOGY_LOCK_MISMATCH", 4, "Node"],
+  ["Lock", "SBOM_MISMATCH", 4, "Node"],
+  ["Output", "INPUT_OUTPUT_OVERLAP", 4, "Node"],
+  ["Output", "UNSAFE_OUTPUT_PATH", 4, "Node"],
+  ["Output", "OUTPUT_EXISTS", 4, "Node"],
+  ["Output", "OUTPUT_NOT_OWNED", 4, "Node"],
+  ["Output", "OUTPUT_LOCKED", 4, "Node"],
+  ["Output", "OUTPUT_RECOVERY_REQUIRED", 4, "Node"],
+  ["Operational", "BUILD_TIMEOUT", 6, "Both"],
+  ["Operational", "MEMORY_LIMIT_EXCEEDED", 6, "Node"],
+  ["Internal", "INTERNAL_COMPILER_ERROR", 5, "Both"]
+];
+var ERROR_CODE_ENTRIES = Object.freeze(
+  entries.map(
+    ([category, code, exitCode, hosts]) => Object.freeze({ category, code, exitCode, hosts })
+  )
+);
+var ERROR_CODE_INDEX = Object.freeze(
+  Object.fromEntries(ERROR_CODE_ENTRIES.map((entry) => [entry.code, entry]))
+);
+function isErrorCode(code) {
+  return typeof code === "string" && Object.prototype.hasOwnProperty.call(ERROR_CODE_INDEX, code);
+}
+function errorMetadata(code) {
+  if (!isErrorCode(code)) {
+    throw new TypeError("Unknown Relationship Presentation error code");
+  }
+  return ERROR_CODE_INDEX[code];
+}
+
 // src/core/error-report.js
 init_define_RPC_ARTIFACT_DIGESTS();
+
+// src/core/status-line.js
+init_define_RPC_ARTIFACT_DIGESTS();
+var SHA256_PATTERN = /^[0-9a-f]{64}$/;
+function formatErrorStatusLine(code) {
+  if (!isErrorCode(code)) {
+    throw new TypeError("Cannot format a status line for an unknown error code");
+  }
+  return `status=error code=${code}
+`;
+}
+function formatSuccessStatusLine(coreFingerprint, distributionFingerprint) {
+  if (!SHA256_PATTERN.test(coreFingerprint) || !SHA256_PATTERN.test(distributionFingerprint)) {
+    throw new TypeError("Success fingerprints must be lowercase SHA-256 values");
+  }
+  return `status=success artifact=relationship-presentation coreFingerprint=${coreFingerprint} distributionFingerprint=${distributionFingerprint}
+`;
+}
+
+// src/core/error-report.js
 function compareCodeUnits(left, right) {
   if (left < right) {
     return -1;
@@ -3887,27 +3978,57 @@ function compareViolations(left, right) {
   }
   return compareCodeUnits(left.message, right.message);
 }
-function buildErrorReport(errorData) {
-  const orderedViolations = [...errorData.violations ?? []].sort(compareViolations).slice(0, 100).map((violation2) => {
-    const normalized = { code: violation2.code };
-    if (violation2.source !== void 0) {
-      normalized.source = violation2.source;
-    }
-    normalized.message = violation2.message;
-    return normalized;
-  });
-  const tooManyViolations = (errorData.violations?.length ?? 0) > 100;
+function normalizeViolation(violation2) {
+  if (violation2 === null || typeof violation2 !== "object" || Array.isArray(violation2) || typeof violation2.code !== "string" || typeof violation2.message !== "string" || violation2.source !== void 0 && typeof violation2.source !== "string") {
+    throw new TypeError("Error-report violations must use the v1.0 shape");
+  }
+  const normalized = { code: violation2.code };
+  if (violation2.source !== void 0) {
+    normalized.source = violation2.source;
+  }
+  normalized.message = violation2.message;
+  return normalized;
+}
+function normalizeErrorData(errorData) {
+  if (errorData === null || typeof errorData !== "object") {
+    throw new TypeError("Error-report data must be an object");
+  }
+  const suppliedViolations = errorData.violations ?? [];
+  if (!Array.isArray(suppliedViolations)) {
+    throw new TypeError("Error-report violations must be an array");
+  }
+  const orderedViolations = suppliedViolations.map(normalizeViolation).sort(compareViolations).slice(0, 100);
+  const tooManyViolations = suppliedViolations.length > 100;
   const code = tooManyViolations ? "TOO_MANY_VIOLATIONS" : errorData.code;
+  errorMetadata(code);
   const report = {
     errorVersion: "error-report-v1.0",
     code
   };
   if (code === "FIXTURE_CONTRACT_FAILED" || code === "TOO_MANY_VIOLATIONS") {
-    report.contractVersion = errorData.contractVersion ?? "person-association-contract-v1.0";
+    const contractVersion = errorData.contractVersion ?? "person-association-contract-v1.0";
+    if (typeof contractVersion !== "string") {
+      throw new TypeError("Error-report contractVersion must be a string");
+    }
+    report.contractVersion = contractVersion;
   }
   report.violations = orderedViolations;
+  return { code, report };
+}
+function buildErrorReport(errorData) {
+  const { report } = normalizeErrorData(errorData);
   return new TextEncoder().encode(`${JSON.stringify(report, null, 2)}
 `);
+}
+function buildFailureResult(errorData) {
+  const { code, report } = normalizeErrorData(errorData);
+  return {
+    status: "error",
+    statusLine: formatErrorStatusLine(code),
+    code,
+    errorReport: new TextEncoder().encode(`${JSON.stringify(report, null, 2)}
+`)
+  };
 }
 
 // src/core/json-scan.js
@@ -4766,11 +4887,11 @@ function validateInlineContext(inlineContext, canonicalTerms) {
   if (!isObject(inlineContext)) {
     fail("LOCAL_CONTEXT_NOT_APPROVED");
   }
-  const entries = Object.entries(inlineContext);
-  if (entries.length > MAX_CONTEXT_TERMS) {
+  const entries2 = Object.entries(inlineContext);
+  if (entries2.length > MAX_CONTEXT_TERMS) {
     fail("TOO_MANY_CONTEXT_TERMS");
   }
-  for (const [term, definition] of entries) {
+  for (const [term, definition] of entries2) {
     if (term === "@base" || term === "@vocab" || term === "@language" || term === "@direction" || term === "@import") {
       fail(
         term === "@import" ? "JSONLD_IMPORT_NOT_SUPPORTED" : "LOCAL_CONTEXT_NOT_APPROVED"
@@ -6779,9 +6900,9 @@ var LOCKED_ARTIFACTS = [
   ["carrier-style", "carrierStyle"],
   ["carrier-navigation", "carrierNavigation"]
 ];
-async function hashedEntries(entries, artifacts, pathMember) {
+async function hashedEntries(entries2, artifacts, pathMember) {
   const result = [];
-  for (const [role, path] of entries) {
+  for (const [role, path] of entries2) {
     result.push({
       role,
       [pathMember]: path,
@@ -6886,8 +7007,10 @@ async function runPhase8(parsedInputs, inputBytes) {
     CANONICAL_ARTIFACT_NAMES.map((name) => [name, produced[name]])
   );
   await verifyDistributionArtifacts(artifacts);
-  const statusLine = `status=success artifact=relationship-presentation coreFingerprint=${coreFingerprint} distributionFingerprint=${distributionFingerprint}
-`;
+  const statusLine = formatSuccessStatusLine(
+    coreFingerprint,
+    distributionFingerprint
+  );
   return {
     status: "success",
     statusLine,
@@ -6981,14 +7104,10 @@ function snapshotCoreRequest(coreRequest) {
   return snapshots;
 }
 function failure(code, violations = []) {
-  const governingCode = violations.length > 100 ? "TOO_MANY_VIOLATIONS" : code;
-  return {
-    status: "error",
-    statusLine: `status=error code=${governingCode}
-`,
-    code: governingCode,
-    errorReport: buildErrorReport({ code, violations })
-  };
+  return buildFailureResult({
+    code: isErrorCode(code) ? code : "INTERNAL_COMPILER_ERROR",
+    violations: isErrorCode(code) ? violations : []
+  });
 }
 function decodeLockedAsciiCarrier(bytes) {
   let result = "";

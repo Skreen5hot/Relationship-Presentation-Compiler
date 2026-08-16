@@ -50,7 +50,10 @@
     "test:phase8:node": "npm run check:runtime && npm run build:phase2 && node scripts/generate-phase8-site.mjs && node --test test/phase8/manifests.test.mjs",
     "test:phase8:browser": "npm run check:phase4:generated && node --test test/phase8/browser-equivalence.test.mjs",
     "test:phase8": "npm run test:phase8:node && npm run test:phase8:browser",
-    "test": "npm run test:phase0 && npm run test:phase1 && npm run test:phase2 && npm run test:phase3 && npm run test:phase4 && npm run test:phase5 && npm run test:phase6 && npm run test:phase7 && npm run test:phase8"
+    "test:phase9:node": "npm run check:runtime && npm run build:phase2 && node --test test/phase9/failure-surfaces.test.mjs",
+    "test:phase9:browser": "npm run check:phase4:generated && node --test test/phase9/browser-failure-equivalence.test.mjs",
+    "test:phase9": "npm run test:phase9:node && npm run test:phase9:browser",
+    "test": "npm run test:phase0 && npm run test:phase1 && npm run test:phase2 && npm run test:phase3 && npm run test:phase4 && npm run test:phase5 && npm run test:phase6 && npm run test:phase7 && npm run test:phase8 && npm run test:phase9"
   },
   "dependencies": {
     "fs-native-extensions": "1.5.0",

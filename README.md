@@ -6,7 +6,7 @@ stages.
 
 ## Status
 
-Phases 0 through 8 establish the Edge-Canonical substrate, immutable release
+Phases 0 through 9 establish the Edge-Canonical substrate, immutable release
 inputs, core boundary, both host shells, recoverable Node publication, and the
 closed-world semantic front half:
 locked tools and schemas, a CPS-scanned JSON-LD slice, normative static inputs,
@@ -19,7 +19,9 @@ presentation, complete HTML projection, contextual renderer, deterministic
 subset revalidator, diagnostic demo, JCS manifests, fingerprints, validation
 report, ownership sentinel, and byte-map verifier are implemented. A conforming
 core request now returns the complete fourteen-file success result identically
-through the Node and Browser core packagings.
+through the Node and Browser core packagings. The complete Appendix A registry,
+canonical error reports, closed C0–C8 ordering, Node exit classes, and exact
+stdout/stderr status-line behavior now share one failure surface.
 
 The normative design is
 [`relationship-presentation-spec-v1_0.md`](relationship-presentation-spec-v1_0.md).
@@ -37,7 +39,8 @@ Phase 6 selection and provenance evidence is in
 Phase 7 projection, rendering, and deployment evidence is in
 [`docs/phase-7-evidence.md`](docs/phase-7-evidence.md). Phase 8 manifest and
 fingerprint evidence is in
-[`docs/phase-8-evidence.md`](docs/phase-8-evidence.md).
+[`docs/phase-8-evidence.md`](docs/phase-8-evidence.md). Phase 9 failure-surface
+evidence is in [`docs/phase-9-evidence.md`](docs/phase-9-evidence.md).
 
 ## Phase 0 verification
 
@@ -51,7 +54,7 @@ npm run test:phase0:browser
 ```
 
 CI runs the Node gates on Windows and Ubuntu and the Worker gate in pinned
-Chromium. The verified Phase 8 artifact set and diagnostic site deploy through
+Chromium. The Phase 9-verified artifact set and diagnostic site deploy through
 GitHub Actions to
 [GitHub Pages](https://skreen5hot.github.io/Relationship-Presentation-Compiler/).
 
@@ -191,3 +194,20 @@ Pages-only index adapter: because Pages refuses dot-prefixed URLs, the homepage
 links the canonical sentinel through a byte-identical
 `ownership-sentinel.json` alias. `demo.html` and the core-returned fourteen-file
 set remain unchanged.
+
+## Phase 9 verification
+
+Run the unified failure-surface and dual-host gates:
+
+```text
+npm run test:phase9:node
+npm run test:phase9:browser
+```
+
+The Node gate checks all 49 Appendix A codes against an independent registry,
+including their host applicability, canonical report shape, exact LF status
+line, and exit class. It also proves violation ordering and truncation,
+success-line stdout discipline, malformed-result rejection, and combined-defect
+ordering from C0 through C6. The Chromium gate repeats representative C0–C6
+failures through the supervised Worker and verifies timeout, abnormal-worker,
+noncanonical-status, and noncanonical-report mappings byte-for-byte.

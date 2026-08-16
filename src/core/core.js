@@ -1,6 +1,7 @@
 import { EMBEDDED_ARTIFACT_DIGESTS } from "./build-constants.js";
 import { CoreFailure } from "./core-failure.js";
-import { buildErrorReport } from "./error-report.js";
+import { isErrorCode } from "./error-codes.js";
+import { buildErrorReport, buildFailureResult } from "./error-report.js";
 import { decodeUtf8Input, JsonScanError, scanJsonText } from "./json-scan.js";
 import { sha256 } from "./hash.js";
 import { runPhase8 } from "./phase8.js";
@@ -99,14 +100,10 @@ function snapshotCoreRequest(coreRequest) {
 }
 
 function failure(code, violations = []) {
-  const governingCode =
-    violations.length > 100 ? "TOO_MANY_VIOLATIONS" : code;
-  return {
-    status: "error",
-    statusLine: `status=error code=${governingCode}\n`,
-    code: governingCode,
-    errorReport: buildErrorReport({ code, violations }),
-  };
+  return buildFailureResult({
+    code: isErrorCode(code) ? code : "INTERNAL_COMPILER_ERROR",
+    violations: isErrorCode(code) ? violations : [],
+  });
 }
 
 function decodeLockedAsciiCarrier(bytes) {

@@ -24,7 +24,10 @@ const servedFiles = new Map(
   [
     "browser/relationship-presentation-core.bundle.mjs",
     "src/host-browser/embed.js",
+    "src/host-browser/host-failure.js",
     "src/host-browser/worker-harness.js",
+    "src/core/error-codes.js",
+    "src/core/status-line.js",
   ].map((path) => [`/${path}`, resolve(repositoryRoot, path)]),
 );
 

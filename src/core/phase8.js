@@ -3,6 +3,7 @@ import {
   CORE_OUTPUTS,
   DISTRIBUTION_FILES,
 } from "./artifact-set.js";
+import { formatSuccessStatusLine } from "./status-line.js";
 import {
   COMPILER_NAME,
   COMPILER_VERSION,
@@ -153,10 +154,10 @@ export async function runPhase8(parsedInputs, inputBytes) {
   );
   await verifyDistributionArtifacts(artifacts);
 
-  const statusLine =
-    `status=success artifact=relationship-presentation ` +
-    `coreFingerprint=${coreFingerprint} ` +
-    `distributionFingerprint=${distributionFingerprint}\n`;
+  const statusLine = formatSuccessStatusLine(
+    coreFingerprint,
+    distributionFingerprint,
+  );
   return {
     status: "success",
     statusLine,

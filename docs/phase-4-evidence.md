@@ -24,8 +24,8 @@ shims selected in Phase 0.
 The committed bundle exports exactly `compileCore` and `buildErrorReport`. Its
 lock evidence is:
 
-- SHA-256: `b34de5175ce77e29c5030512c519a8b88e881d057319c050e88914ea93ecf0a2`
-- SRI: `sha384-QxUJwoirZDwytWgJL393ImetEDu3OZHrAB/2E46xed5WcmnGvyKQaFNRSZhpyCdx`
+- SHA-256: `b8a55fa5c3978b02f48ed760aecb60bc05bf856e7d4063ec7e09ce7043315890`
+- SRI: `sha384-/0zvobooJKGJelAtJmM1JaW5D4jSdnaRmyrMlLtGlBoBuDGElD6+ptdKOfZjsYmv`
 
 `browser-host.lock.json` also binds the esbuild package integrity and the exact
 browser versions pinned by Playwright 1.62.1: Chromium 151.0.7922.34, Firefox
@@ -57,8 +57,9 @@ and an invalid CoreRequest value. Phase 5 extends this evidence with request,
 profile, context, contract, and contamination cases. Phases 6–7 add canonical,
 late-bound, hostile-placeholder, projection, carrier, and revalidation paths.
 The canonical request now passes C3–C8 and returns the complete fourteen-file
-Phase 8 success result. Equivalence asserts both fingerprints, the status line,
-the filename set, and every artifact byte.
+Phase 8 success result. Phase 9 additionally closes status-line and report
+validation at the B2 handoff. Equivalence asserts both fingerprints, the status
+line, the filename set, and every artifact byte.
 
 Separate Worker fixtures prove timeout termination, thrown-worker failure,
 malformed-result rejection, structured-clone rejection, active-work shutdown,

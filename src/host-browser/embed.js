@@ -1,16 +1,14 @@
-import { buildErrorReport } from "../../browser/relationship-presentation-core.bundle.mjs";
+import {
+  hostFailure,
+  isCanonicalErrorReport,
+} from "./host-failure.js";
+import {
+  formatErrorStatusLine,
+  formatSuccessStatusLine,
+} from "../core/status-line.js";
 
 const DEFAULT_TIMEOUT_MS = 40_000;
 const DEFAULT_WORKER_URL = new URL("./worker-harness.js", import.meta.url);
-
-function hostFailure(code) {
-  return {
-    status: "error",
-    statusLine: `status=error code=${code}\n`,
-    code,
-    errorReport: buildErrorReport({ code, violations: [] }),
-  };
-}
 
 function timeoutMilliseconds(supervision) {
   const timeoutMs = supervision?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
@@ -39,20 +37,27 @@ function isCoreResult(result) {
     return false;
   }
   if (result.status === "error") {
-    return (
-      typeof result.statusLine === "string" &&
-      typeof result.code === "string" &&
-      Object.prototype.toString.call(result.errorReport) ===
-        "[object Uint8Array]"
-    );
+    try {
+      return (
+        result.statusLine === formatErrorStatusLine(result.code) &&
+        isCanonicalErrorReport(result.errorReport, result.code)
+      );
+    } catch {
+      return false;
+    }
   }
   if (result.status === "success") {
-    return (
-      typeof result.statusLine === "string" &&
-      typeof result.coreFingerprint === "string" &&
-      typeof result.distributionFingerprint === "string" &&
-      isByteMap(result.artifacts)
-    );
+    try {
+      return (
+        result.statusLine ===
+          formatSuccessStatusLine(
+            result.coreFingerprint,
+            result.distributionFingerprint,
+          ) && isByteMap(result.artifacts)
+      );
+    } catch {
+      return false;
+    }
   }
   return false;
 }
