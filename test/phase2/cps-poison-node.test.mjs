@@ -64,7 +64,7 @@ test("the Phase 2 corpus is deterministic under poisoned Node globals", async ()
   invalidRequestUtf8.inputs.request = new Uint8Array([0xff]);
 
   const corpus = [
-    [canonical, 5, 8, 4],
+    [canonical, 44, 10, 3],
     [missingInput, 0, 0],
     [unknownInput, 0, 0],
     [nonByteInput, 0, 0],

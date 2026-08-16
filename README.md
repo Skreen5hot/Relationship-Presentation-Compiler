@@ -6,7 +6,7 @@ stages.
 
 ## Status
 
-Phases 0 through 7 establish the Edge-Canonical substrate, immutable release
+Phases 0 through 8 establish the Edge-Canonical substrate, immutable release
 inputs, core boundary, both host shells, recoverable Node publication, and the
 closed-world semantic front half:
 locked tools and schemas, a CPS-scanned JSON-LD slice, normative static inputs,
@@ -16,9 +16,10 @@ executed through a supervised dedicated Worker. Request normalization, exact
 resolution, profile equality, contract validation, six-node content selection,
 character provenance, narrative construction, and the target-neutral
 presentation, complete HTML projection, contextual renderer, deterministic
-subset revalidator, and diagnostic demo are implemented through Stage 07.
-Fingerprints, manifests, and the complete fourteen-file success result remain
-for Phase 8.
+subset revalidator, diagnostic demo, JCS manifests, fingerprints, validation
+report, ownership sentinel, and byte-map verifier are implemented. A conforming
+core request now returns the complete fourteen-file success result identically
+through the Node and Browser core packagings.
 
 The normative design is
 [`relationship-presentation-spec-v1_0.md`](relationship-presentation-spec-v1_0.md).
@@ -34,7 +35,9 @@ semantic evidence is in [`docs/phase-5-evidence.md`](docs/phase-5-evidence.md).
 Phase 6 selection and provenance evidence is in
 [`docs/phase-6-evidence.md`](docs/phase-6-evidence.md).
 Phase 7 projection, rendering, and deployment evidence is in
-[`docs/phase-7-evidence.md`](docs/phase-7-evidence.md).
+[`docs/phase-7-evidence.md`](docs/phase-7-evidence.md). Phase 8 manifest and
+fingerprint evidence is in
+[`docs/phase-8-evidence.md`](docs/phase-8-evidence.md).
 
 ## Phase 0 verification
 
@@ -48,8 +51,9 @@ npm run test:phase0:browser
 ```
 
 CI runs the Node gates on Windows and Ubuntu and the Worker gate in pinned
-Chromium. The verified Phase 7 diagnostic site deploys through GitHub Actions
-to [GitHub Pages](https://skreen5hot.github.io/Relationship-Presentation-Compiler/).
+Chromium. The verified Phase 8 artifact set and diagnostic site deploy through
+GitHub Actions to
+[GitHub Pages](https://skreen5hot.github.io/Relationship-Presentation-Compiler/).
 
 ## Phase 1 verification
 
@@ -130,8 +134,8 @@ fixture, validates a late-bound fixture, exercises inert metamorphic changes,
 and covers the Phase 5 negative matrix. The browser suite sends representative
 C3–C6 cases through the supervised Worker host in pinned Chromium and requires
 byte-identical status lines and error reports. This was the historical Phase 5
-boundary; the current core continues through Stage 07 rendering and
-revalidation.
+boundary; the current core continues through the complete Phase 8 success
+result.
 
 ## Phase 6 verification
 
@@ -149,7 +153,7 @@ and independently reconstructs source-derived text from its declared
 `derivedFrom` nodes. The Chromium suite executes canonical, late-bound, and
 hostile-placeholder inputs through the same supervised Worker bundle. A
 conforming fixture historically reached the explicit Stage 07 boundary; the
-current core continues through the rendered and revalidated presentation.
+current core continues through the complete Phase 8 success result.
 
 ## Phase 7 verification
 
@@ -166,5 +170,21 @@ identity, a parser/serializer round trip, the closed adversarial grammar,
 hostile-label escaping, JSDOM accessibility and navigation, and deterministic
 site assembly. The Chromium gate checks the same presentation under a real
 HTML5 engine, including accessible names, hidden semantics, native keyboard
-activation, focus movement, sandboxed `srcdoc`, and network silence. A
-conforming core request now stops at the Phase 8 fingerprint/manifest boundary.
+activation, focus movement, sandboxed `srcdoc`, and network silence.
+
+## Phase 8 verification
+
+Run the manifest, fingerprint, verifier, golden, site, and host-invariance gates:
+
+```text
+npm run test:phase8:node
+npm run test:phase8:browser
+```
+
+The Node gate requires the exact fourteen-file golden byte map, validates both
+JCS fingerprints and every recorded hash, checks the core manifest for absence
+of host evidence, and proves that mutation of any artifact plus extra or missing
+entries is rejected. The Chromium gate requires the supervised Worker to return
+the same fingerprints, status line, filenames, and every artifact byte as the
+Node packaging. GitHub Pages publishes that verified byte map, with `demo.html`
+as the index alias.

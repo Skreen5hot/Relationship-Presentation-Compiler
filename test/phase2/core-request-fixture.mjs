@@ -60,11 +60,16 @@ export function cloneCoreRequest(coreRequest) {
 }
 
 export function comparableResult(result) {
-  return {
-    ...result,
-    errorReport:
-      result.errorReport === undefined ? undefined : [...result.errorReport],
-  };
+  const comparable = { ...result };
+  if (result.artifacts !== undefined) {
+    comparable.artifacts = Object.fromEntries(
+      Object.entries(result.artifacts).map(([name, value]) => [name, [...value]]),
+    );
+  }
+  if (result.errorReport !== undefined) {
+    comparable.errorReport = [...result.errorReport];
+  }
+  return comparable;
 }
 
 export { bytes };

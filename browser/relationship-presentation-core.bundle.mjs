@@ -3426,7 +3426,7 @@ var require_canonicalize = __commonJS({
   "node_modules/canonicalize/lib/canonicalize.js"(exports, module) {
     "use strict";
     init_define_RPC_ARTIFACT_DIGESTS();
-    module.exports = function serialize(object) {
+    module.exports = function serialize2(object) {
       if (typeof object === "number" && isNaN(object)) {
         throw new Error("NaN is not allowed");
       }
@@ -3437,13 +3437,13 @@ var require_canonicalize = __commonJS({
         return JSON.stringify(object);
       }
       if (object.toJSON instanceof Function) {
-        return serialize(object.toJSON());
+        return serialize2(object.toJSON());
       }
       if (Array.isArray(object)) {
         const values2 = object.reduce((t, cv, ci) => {
           const comma = ci === 0 ? "" : ",";
           const value = cv === void 0 || typeof cv === "symbol" ? null : cv;
-          return `${t}${comma}${serialize(value)}`;
+          return `${t}${comma}${serialize2(value)}`;
         }, "");
         return `[${values2}]`;
       }
@@ -3452,7 +3452,7 @@ var require_canonicalize = __commonJS({
           return t;
         }
         const comma = t.length === 0 ? "" : ",";
-        return `${t}${comma}${serialize(cv)}:${serialize(object[cv])}`;
+        return `${t}${comma}${serialize2(cv)}:${serialize2(object[cv])}`;
       }, "");
       return `{${values}}`;
     };
@@ -3847,6 +3847,9 @@ init_define_RPC_ARTIFACT_DIGESTS();
 
 // src/core/build-constants.js
 init_define_RPC_ARTIFACT_DIGESTS();
+var COMPILER_NAME = "relationship-presentation-poc";
+var COMPILER_VERSION = "1.0.0";
+var SOURCE_COMMIT = "0000000000000000000000000000000000000000";
 var EMBEDDED_ARTIFACT_DIGESTS = define_RPC_ARTIFACT_DIGESTS_default;
 
 // src/core/core-failure.js
@@ -4153,9 +4156,62 @@ function scanJsonText(text) {
   }
   return { depth: maximumDepth, value: JSON.parse(text) };
 }
+function parseJsonBytes(bytes) {
+  const decoded = decodeUtf8Input(bytes);
+  return { ...decoded, ...scanJsonText(decoded.text) };
+}
 
-// src/core/phase7.js
+// src/core/hash.js
 init_define_RPC_ARTIFACT_DIGESTS();
+function lowercaseHex(arrayBuffer) {
+  let result = "";
+  for (const value of new Uint8Array(arrayBuffer)) {
+    result += value.toString(16).padStart(2, "0");
+  }
+  return result;
+}
+async function sha256(bytes) {
+  return lowercaseHex(await crypto.subtle.digest("SHA-256", bytes));
+}
+
+// src/core/phase8.js
+init_define_RPC_ARTIFACT_DIGESTS();
+
+// src/core/artifact-set.js
+init_define_RPC_ARTIFACT_DIGESTS();
+var CANONICAL_ARTIFACT_NAMES = [
+  ".relationship-presentation-poc-owned",
+  "poc.context.jsonld",
+  "01-request.jsonld",
+  "02-resolution.jsonld",
+  "03-contract-validation.jsonld",
+  "04-content-manifest.jsonld",
+  "05-narrative.jsonld",
+  "06-presentation.jsonld",
+  "07-html-projection.jsonld",
+  "08-core-manifest.json",
+  "09-distribution-manifest.json",
+  "presentation.html",
+  "demo.html",
+  "validation-report.json"
+];
+var CORE_OUTPUTS = [
+  ["output-context", "poc.context.jsonld"],
+  ["stage-01", "01-request.jsonld"],
+  ["stage-02", "02-resolution.jsonld"],
+  ["stage-03", "03-contract-validation.jsonld"],
+  ["stage-04", "04-content-manifest.jsonld"],
+  ["stage-05", "05-narrative.jsonld"],
+  ["stage-06", "06-presentation.jsonld"],
+  ["stage-07", "07-html-projection.jsonld"],
+  ["presentation", "presentation.html"]
+];
+var DISTRIBUTION_FILES = [
+  ["ownership-sentinel", ".relationship-presentation-poc-owned"],
+  ["core-manifest", "08-core-manifest.json"],
+  ["validation-report", "validation-report.json"],
+  ["demo", "demo.html"]
+];
 
 // src/core/build-demo.js
 init_define_RPC_ARTIFACT_DIGESTS();
@@ -4193,6 +4249,15 @@ var PHASE7_ARTIFACTS = [
   "07-html-projection.jsonld",
   "presentation.html"
 ];
+var PHASE8_ARTIFACTS = [
+  ".relationship-presentation-poc-owned",
+  ...PHASE7_ARTIFACTS.slice(0, 8),
+  "08-core-manifest.json",
+  "09-distribution-manifest.json",
+  "presentation.html",
+  "demo.html",
+  "validation-report.json"
+];
 function findText(narrative, id) {
   const content = [
     ...narrative.hasDocumentContent ?? [],
@@ -4203,7 +4268,7 @@ function findText(narrative, id) {
   }
   return content.textValue;
 }
-function buildDemoHtml(narrative, presentationBytes) {
+function buildDemoHtml(narrative, presentationBytes, options = {}) {
   let presentation;
   try {
     presentation = new TextDecoder("utf-8", { fatal: true }).decode(
@@ -4214,7 +4279,9 @@ function buildDemoHtml(narrative, presentationBytes) {
   }
   const documentTitle = findText(narrative, "run:document-title-content");
   const message = findText(narrative, "run:primary-message-content-1");
-  const artifactItems = PHASE7_ARTIFACTS.map(
+  const phase = options.coreFingerprint === void 0 ? 7 : 8;
+  const artifacts = phase === 7 ? PHASE7_ARTIFACTS : PHASE8_ARTIFACTS;
+  const artifactItems = artifacts.map(
     (name) => `          <li><a href="${escapeHtmlAttribute(
       name
     )}"><code>${escapeHtmlText(name)}</code></a></li>`
@@ -4224,7 +4291,7 @@ function buildDemoHtml(narrative, presentationBytes) {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Relationship Presentation Compiler — Phase 7 demo</title>
+    <title>Relationship Presentation Compiler — Phase ${phase} demo</title>
     <style>
       :root { color-scheme: light; font-family: system-ui, sans-serif; color: #172033; background: #eef2f7; }
       * { box-sizing: border-box; }
@@ -4245,10 +4312,13 @@ function buildDemoHtml(narrative, presentationBytes) {
   <body>
     <main>
       <header>
-        <p class="eyebrow">Edge-canonical compiler · Phase 7</p>
+        <p class="eyebrow">Edge-canonical compiler · Phase ${phase}</p>
         <h1>${escapeHtmlText(documentTitle)}</h1>
         <p class="summary">${escapeHtmlText(message)} This diagnostic viewer presents the deterministic Stage 07 HTML projection. Its embedded presentation is network-silent because its locked carriers make no requests.</p>
         <p><a href="presentation.html">Open the generated presentation directly</a></p>
+        ${options.coreFingerprint === void 0 ? "" : `<p>Core fingerprint: <code>${escapeHtmlText(
+    options.coreFingerprint
+  )}</code></p>`}
       </header>
       <iframe title="Generated presentation: ${escapeHtmlAttribute(
     documentTitle
@@ -4256,7 +4326,7 @@ function buildDemoHtml(narrative, presentationBytes) {
     presentation
   )}"></iframe>
       <section aria-labelledby="artifact-heading">
-        <h2 id="artifact-heading">Phase 7 artifacts</h2>
+        <h2 id="artifact-heading">Phase ${phase} artifacts</h2>
         <ol>
 ${artifactItems}
         </ol>
@@ -4267,6 +4337,42 @@ ${artifactItems}
 `;
   return new TextEncoder().encode(html);
 }
+
+// src/core/canonical-json.js
+init_define_RPC_ARTIFACT_DIGESTS();
+var encoder = new TextEncoder();
+function serialize(value) {
+  if (value === null || typeof value === "boolean" || typeof value === "string") {
+    return JSON.stringify(value);
+  }
+  if (typeof value === "number") {
+    if (!Number.isSafeInteger(value) || value < 0) {
+      throw new TypeError(
+        "Canonical manifest numbers must be non-negative safe integers"
+      );
+    }
+    return JSON.stringify(value);
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(serialize).join(",")}]`;
+  }
+  if (value !== null && typeof value === "object") {
+    const keys = Object.keys(value).sort();
+    return `{${keys.map((key) => `${JSON.stringify(key)}:${serialize(value[key])}`).join(",")}}`;
+  }
+  throw new TypeError("Value is outside the canonical manifest JSON domain");
+}
+function serializeCanonicalJson(value) {
+  return encoder.encode(`${serialize(value)}
+`);
+}
+function serializePlainJson(value) {
+  return encoder.encode(`${JSON.stringify(value, null, 2)}
+`);
+}
+
+// src/core/phase7.js
+init_define_RPC_ARTIFACT_DIGESTS();
 
 // src/core/phase6.js
 init_define_RPC_ARTIFACT_DIGESTS();
@@ -4931,9 +5037,9 @@ function normalizeRequest(requestText) {
 
 // src/core/stable-jsonld.js
 init_define_RPC_ARTIFACT_DIGESTS();
-var encoder = new TextEncoder();
+var encoder2 = new TextEncoder();
 function serializeJsonLd(value) {
-  return encoder.encode(`${JSON.stringify(value, null, 2)}
+  return encoder2.encode(`${JSON.stringify(value, null, 2)}
 `);
 }
 
@@ -6425,7 +6531,7 @@ function revalidateHtmlSubset({
 }
 
 // src/core/phase7.js
-async function runPhase7(parsedInputs) {
+async function runPhase7(parsedInputs, options = {}) {
   const phase6 = await runPhase6(parsedInputs);
   const htmlProjection = projectHtmlDocument(
     phase6.stages.narrative,
@@ -6450,11 +6556,344 @@ async function runPhase7(parsedInputs) {
     "07-html-projection.jsonld": htmlProjectionBytes,
     "presentation.html": presentationHtml
   };
-  const demoHtml = buildDemoHtml(phase6.stages.narrative, presentationHtml);
+  const demoHtml = options.includeDemo === false ? void 0 : buildDemoHtml(phase6.stages.narrative, presentationHtml);
   return {
     ...phase6,
-    artifacts: { ...artifacts, "demo.html": demoHtml },
+    artifacts: demoHtml === void 0 ? artifacts : { ...artifacts, "demo.html": demoHtml },
     stages: { ...phase6.stages, htmlProjection }
+  };
+}
+
+// src/core/verify-distribution.js
+init_define_RPC_ARTIFACT_DIGESTS();
+var CORE_INPUTS = [
+  ["source", "source.jsonld"],
+  ["request", "request.txt"],
+  ["profile", "profile.jsonld"],
+  ["canonical-profile", "two-slide-explainer.jsonld"],
+  ["context", "poc.context.jsonld"],
+  ["contract", "person-association-contract.jsonld"],
+  ["carrier-style", "presentation.css"],
+  ["carrier-navigation", "navigation.js"]
+];
+var LOCKED_ROLES = [
+  "context",
+  "contract",
+  "supported-profile",
+  "carrier-style",
+  "carrier-navigation"
+];
+var DistributionVerificationError = class extends Error {
+  constructor(reason) {
+    super(reason);
+    this.name = "DistributionVerificationError";
+    this.reason = reason;
+  }
+};
+function reject(reason) {
+  throw new DistributionVerificationError(reason);
+}
+function isPlainObject(value) {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+function hasExactMembers(value, members) {
+  return isPlainObject(value) && Object.keys(value).length === members.length && members.every((member) => Object.hasOwn(value, member));
+}
+function isSha256(value) {
+  return typeof value === "string" && /^[0-9a-f]{64}$/u.test(value);
+}
+function sameBytes(left, right) {
+  if (left.byteLength !== right.byteLength) {
+    return false;
+  }
+  for (let index = 0; index < left.byteLength; index += 1) {
+    if (left[index] !== right[index]) {
+      return false;
+    }
+  }
+  return true;
+}
+function parseManifest(bytes, label) {
+  try {
+    const manifest = parseJsonBytes(bytes).value;
+    if (!isPlainObject(manifest)) {
+      reject(`${label}:not-object`);
+    }
+    if (!sameBytes(serializeCanonicalJson(manifest), bytes)) {
+      reject(`${label}:not-canonical`);
+    }
+    return manifest;
+  } catch (error) {
+    if (error instanceof DistributionVerificationError) {
+      throw error;
+    }
+    reject(`${label}:invalid-json`);
+  }
+}
+function withoutMember(value, member) {
+  return Object.fromEntries(
+    Object.entries(value).filter(([name]) => name !== member)
+  );
+}
+function assertEntry(entry, expectedRole, expectedName, nameMember, label) {
+  if (!hasExactMembers(entry, ["role", nameMember, "sha256"]) || entry.role !== expectedRole || entry[nameMember] !== expectedName || !isSha256(entry.sha256)) {
+    reject(`${label}:invalid-entry`);
+  }
+}
+function assertDistributionShape(manifest) {
+  if (!hasExactMembers(manifest, [
+    "manifestVersion",
+    "coreManifest",
+    "files",
+    "distributionFingerprint"
+  ]) || manifest.manifestVersion !== "distribution-manifest-v1.0" || !isSha256(manifest.distributionFingerprint) || !hasExactMembers(manifest.coreManifest, ["path", "sha256"]) || manifest.coreManifest.path !== "08-core-manifest.json" || !isSha256(manifest.coreManifest.sha256) || !Array.isArray(manifest.files) || manifest.files.length !== DISTRIBUTION_FILES.length) {
+    reject("distribution-manifest:invalid-shape");
+  }
+  for (let index = 0; index < DISTRIBUTION_FILES.length; index += 1) {
+    assertEntry(
+      manifest.files[index],
+      DISTRIBUTION_FILES[index][0],
+      DISTRIBUTION_FILES[index][1],
+      "path",
+      "distribution-manifest"
+    );
+  }
+}
+function assertCoreShape(manifest) {
+  if (!hasExactMembers(manifest, [
+    "manifestVersion",
+    "compiler",
+    "lockedArtifacts",
+    "inputs",
+    "outputs",
+    "coreFingerprint"
+  ]) || manifest.manifestVersion !== "core-manifest-v1.0" || !isSha256(manifest.coreFingerprint) || !hasExactMembers(manifest.compiler, ["name", "version", "sourceCommit"]) || manifest.compiler.name !== "relationship-presentation-poc" || manifest.compiler.version !== "1.0.0" || typeof manifest.compiler.sourceCommit !== "string" || !/^[0-9a-f]{40}$/u.test(manifest.compiler.sourceCommit) || !Array.isArray(manifest.lockedArtifacts) || manifest.lockedArtifacts.length !== LOCKED_ROLES.length || !Array.isArray(manifest.inputs) || manifest.inputs.length !== CORE_INPUTS.length || !Array.isArray(manifest.outputs) || manifest.outputs.length !== CORE_OUTPUTS.length) {
+    reject("core-manifest:invalid-shape");
+  }
+  for (let index = 0; index < LOCKED_ROLES.length; index += 1) {
+    const entry = manifest.lockedArtifacts[index];
+    if (!hasExactMembers(entry, ["role", "sha256"]) || entry.role !== LOCKED_ROLES[index] || !isSha256(entry.sha256)) {
+      reject("core-manifest:invalid-locked-entry");
+    }
+  }
+  for (let index = 0; index < CORE_INPUTS.length; index += 1) {
+    assertEntry(
+      manifest.inputs[index],
+      CORE_INPUTS[index][0],
+      CORE_INPUTS[index][1],
+      "name",
+      "core-manifest"
+    );
+  }
+  for (let index = 0; index < CORE_OUTPUTS.length; index += 1) {
+    assertEntry(
+      manifest.outputs[index],
+      CORE_OUTPUTS[index][0],
+      CORE_OUTPUTS[index][1],
+      "path",
+      "core-manifest"
+    );
+  }
+}
+async function assertHash(bytes, expected, label) {
+  if (Object.prototype.toString.call(bytes) !== "[object Uint8Array]") {
+    reject(`${label}:missing`);
+  }
+  if (await sha256(bytes) !== expected) {
+    reject(`${label}:hash-mismatch`);
+  }
+}
+async function verifyDistributionArtifacts(artifacts) {
+  if (!isPlainObject(artifacts)) {
+    reject("artifact-set:not-object");
+  }
+  const distributionBytes = artifacts["09-distribution-manifest.json"];
+  if (Object.prototype.toString.call(distributionBytes) !== "[object Uint8Array]") {
+    reject("distribution-manifest:missing");
+  }
+  const distribution = parseManifest(distributionBytes, "distribution-manifest");
+  assertDistributionShape(distribution);
+  const calculatedDistributionFingerprint = await sha256(
+    serializeCanonicalJson(
+      withoutMember(distribution, "distributionFingerprint")
+    )
+  );
+  if (calculatedDistributionFingerprint !== distribution.distributionFingerprint) {
+    reject("distribution-manifest:fingerprint-mismatch");
+  }
+  for (const entry of distribution.files) {
+    await assertHash(artifacts[entry.path], entry.sha256, entry.path);
+  }
+  const coreBytes = artifacts["08-core-manifest.json"];
+  await assertHash(
+    coreBytes,
+    distribution.coreManifest.sha256,
+    "08-core-manifest.json"
+  );
+  const coreEntry = distribution.files[1];
+  if (coreEntry.sha256 !== distribution.coreManifest.sha256) {
+    reject("distribution-manifest:core-hash-disagrees");
+  }
+  const core = parseManifest(coreBytes, "core-manifest");
+  assertCoreShape(core);
+  const calculatedCoreFingerprint = await sha256(
+    serializeCanonicalJson(withoutMember(core, "coreFingerprint"))
+  );
+  if (calculatedCoreFingerprint !== core.coreFingerprint) {
+    reject("core-manifest:fingerprint-mismatch");
+  }
+  for (const output of core.outputs) {
+    await assertHash(artifacts[output.path], output.sha256, output.path);
+  }
+  const names = Object.keys(artifacts);
+  if (names.length !== CANONICAL_ARTIFACT_NAMES.length || CANONICAL_ARTIFACT_NAMES.some((name) => !Object.hasOwn(artifacts, name))) {
+    reject("artifact-set:name-mismatch");
+  }
+  for (const name of CANONICAL_ARTIFACT_NAMES) {
+    if (Object.prototype.toString.call(artifacts[name]) !== "[object Uint8Array]") {
+      reject(`${name}:not-bytes`);
+    }
+  }
+  return true;
+}
+
+// src/core/phase8.js
+var INPUTS = [
+  ["source", "source", "source.jsonld"],
+  ["request", "request", "request.txt"],
+  ["profile", "userProfile", "profile.jsonld"],
+  ["canonical-profile", "canonicalProfile", "two-slide-explainer.jsonld"],
+  ["context", "context", "poc.context.jsonld"],
+  ["contract", "contract", "person-association-contract.jsonld"],
+  ["carrier-style", "carrierStyle", "presentation.css"],
+  ["carrier-navigation", "carrierNavigation", "navigation.js"]
+];
+var LOCKED_ARTIFACTS = [
+  ["context", "context"],
+  ["contract", "contract"],
+  ["supported-profile", "canonicalProfile"],
+  ["carrier-style", "carrierStyle"],
+  ["carrier-navigation", "carrierNavigation"]
+];
+async function hashedEntries(entries, artifacts, pathMember) {
+  const result = [];
+  for (const [role, path] of entries) {
+    result.push({
+      role,
+      [pathMember]: path,
+      sha256: await sha256(artifacts[path])
+    });
+  }
+  return result;
+}
+async function runPhase8(parsedInputs, inputBytes) {
+  const phase7 = await runPhase7(parsedInputs, { includeDemo: false });
+  const coreArtifacts = {
+    "poc.context.jsonld": inputBytes.context,
+    ...phase7.artifacts
+  };
+  const outputs = await hashedEntries(CORE_OUTPUTS, coreArtifacts, "path");
+  const inputs = [];
+  for (const [role, inputRole, name] of INPUTS) {
+    inputs.push({ role, name, sha256: await sha256(inputBytes[inputRole]) });
+  }
+  const coreManifestBase = {
+    manifestVersion: "core-manifest-v1.0",
+    compiler: {
+      name: COMPILER_NAME,
+      version: COMPILER_VERSION,
+      sourceCommit: SOURCE_COMMIT
+    },
+    lockedArtifacts: LOCKED_ARTIFACTS.map(([role, digestRole]) => ({
+      role,
+      sha256: EMBEDDED_ARTIFACT_DIGESTS[digestRole]
+    })),
+    inputs,
+    outputs
+  };
+  const coreFingerprint = await sha256(
+    serializeCanonicalJson(coreManifestBase)
+  );
+  const coreManifest = serializeCanonicalJson({
+    ...coreManifestBase,
+    coreFingerprint
+  });
+  const validationReport = serializePlainJson({
+    reportVersion: "validation-report-v1.0",
+    requestGrammarMatched: true,
+    designatorResolved: true,
+    resolutionStatus: "UniqueMatch",
+    fixtureContractSatisfied: true,
+    selectedIndividualsPairwiseDistinct: true,
+    profileSupported: true,
+    sourceContaminationDetected: false,
+    escapingApplied: true,
+    renderedDocumentValidated: true,
+    accessibilityStructureValidated: true,
+    artifactHashesRecorded: true,
+    coreFingerprint
+  });
+  const demo = buildDemoHtml(
+    phase7.stages.narrative,
+    coreArtifacts["presentation.html"],
+    { coreFingerprint }
+  );
+  const sentinel = serializePlainJson({
+    sentinelVersion: "owned-output-v1.0",
+    owner: COMPILER_NAME,
+    purpose: "Marks this directory as compiler-owned output eligible for replacement."
+  });
+  const distributionArtifacts = {
+    ".relationship-presentation-poc-owned": sentinel,
+    "08-core-manifest.json": coreManifest,
+    "validation-report.json": validationReport,
+    "demo.html": demo
+  };
+  const files = await hashedEntries(
+    DISTRIBUTION_FILES,
+    distributionArtifacts,
+    "path"
+  );
+  const coreManifestHash = files[1].sha256;
+  const distributionManifestBase = {
+    manifestVersion: "distribution-manifest-v1.0",
+    coreManifest: {
+      path: "08-core-manifest.json",
+      sha256: coreManifestHash
+    },
+    files
+  };
+  const distributionFingerprint = await sha256(
+    serializeCanonicalJson(distributionManifestBase)
+  );
+  const distributionManifest = serializeCanonicalJson({
+    ...distributionManifestBase,
+    distributionFingerprint
+  });
+  const produced = {
+    ".relationship-presentation-poc-owned": sentinel,
+    ...coreArtifacts,
+    "08-core-manifest.json": coreManifest,
+    "09-distribution-manifest.json": distributionManifest,
+    "demo.html": demo,
+    "validation-report.json": validationReport
+  };
+  const artifacts = Object.fromEntries(
+    CANONICAL_ARTIFACT_NAMES.map((name) => [name, produced[name]])
+  );
+  await verifyDistributionArtifacts(artifacts);
+  const statusLine = `status=success artifact=relationship-presentation coreFingerprint=${coreFingerprint} distributionFingerprint=${distributionFingerprint}
+`;
+  return {
+    status: "success",
+    statusLine,
+    coreFingerprint,
+    distributionFingerprint,
+    artifacts
   };
 }
 
@@ -6500,7 +6939,7 @@ var INPUT_LIMITS = {
   source: [1024 * 1024, "SOURCE_TOO_LARGE"],
   request: [4 * 1024, "REQUEST_TOO_LARGE"]
 };
-function isPlainObject(value) {
+function isPlainObject2(value) {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     return false;
   }
@@ -6508,7 +6947,7 @@ function isPlainObject(value) {
   return prototype === Object.prototype || prototype === null;
 }
 function hasExactDataMembers(value, memberNames) {
-  if (!isPlainObject(value)) {
+  if (!isPlainObject2(value)) {
     return false;
   }
   const ownKeys = Reflect.ownKeys(value);
@@ -6551,13 +6990,6 @@ function failure(code, violations = []) {
     errorReport: buildErrorReport({ code, violations })
   };
 }
-function lowercaseHex(arrayBuffer) {
-  let result = "";
-  for (const value of new Uint8Array(arrayBuffer)) {
-    result += value.toString(16).padStart(2, "0");
-  }
-  return result;
-}
 function decodeLockedAsciiCarrier(bytes) {
   let result = "";
   for (const value of bytes) {
@@ -6567,9 +6999,6 @@ function decodeLockedAsciiCarrier(bytes) {
     result += String.fromCharCode(value);
   }
   return result;
-}
-async function sha256(bytes) {
-  return lowercaseHex(await crypto.subtle.digest("SHA-256", bytes));
 }
 async function compileCore(coreRequest) {
   const inputs = snapshotCoreRequest(coreRequest);
@@ -6613,14 +7042,13 @@ async function compileCore(coreRequest) {
     }
   }
   try {
-    await runPhase7(parsedInputs);
+    return await runPhase8(parsedInputs, inputs);
   } catch (error) {
     if (error instanceof CoreFailure) {
       return failure(error.code, error.violations);
     }
     return failure("INTERNAL_COMPILER_ERROR");
   }
-  return failure("INTERNAL_COMPILER_ERROR");
 }
 export {
   buildErrorReport,

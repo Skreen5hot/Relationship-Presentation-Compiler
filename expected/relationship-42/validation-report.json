@@ -1,0 +1,15 @@
+{
+  "reportVersion": "validation-report-v1.0",
+  "requestGrammarMatched": true,
+  "designatorResolved": true,
+  "resolutionStatus": "UniqueMatch",
+  "fixtureContractSatisfied": true,
+  "selectedIndividualsPairwiseDistinct": true,
+  "profileSupported": true,
+  "sourceContaminationDetected": false,
+  "escapingApplied": true,
+  "renderedDocumentValidated": true,
+  "accessibilityStructureValidated": true,
+  "artifactHashesRecorded": true,
+  "coreFingerprint": "2724d66efecc61f338948da5c7d97da011ccf1fa232a450a94a0bfc19820f98b"
+}

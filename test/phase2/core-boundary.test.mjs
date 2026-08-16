@@ -60,7 +60,7 @@ test("CoreRequest bytes are snapshotted before the first asynchronous digest", a
   const resultPromise = compileCore(request);
   request.inputs.context[0] ^= 1;
   request.inputs.source.fill(0xff);
-  assertFailure(await resultPromise, "INTERNAL_COMPILER_ERROR");
+  assert.equal((await resultPromise).status, "success");
 });
 
 test("phase C1 binds all five locked input byte sequences", async () => {
@@ -117,7 +117,7 @@ test("phase C2 strips one BOM and rejects duplicate or over-deep JSON", async ()
       0xbf,
       ...request.inputs[role],
     ]);
-    assertFailure(await compileCore(request), "INTERNAL_COMPILER_ERROR");
+    assert.equal((await compileCore(request)).status, "success");
   }
 
   for (const role of ["userProfile", "source"]) {

@@ -8,8 +8,8 @@ Specification: Relationship Presentation Compiler v1.0, edge-canonical re-cut
 
 Phase 4 materializes the deterministic browser core bundle, its Browser-host
 lock, and the supervised reference embed API. It first proved the browser
-substrate against the C0–C2 shell; the same locked bundle now carries C3–C7 and
-Stages 01–07 while retaining the Phase 4 host contract.
+substrate against the C0–C2 shell; the same locked bundle now carries C3–C8 and
+the complete Phase 8 result while retaining the Phase 4 host contract.
 
 ## Locked core bundle
 
@@ -56,10 +56,9 @@ The smoke corpus covers the canonical fixture request, a mutated locked carrier,
 and an invalid CoreRequest value. Phase 5 extends this evidence with request,
 profile, context, contract, and contamination cases. Phases 6–7 add canonical,
 late-bound, hostile-placeholder, projection, carrier, and revalidation paths.
-The canonical request now passes C3–C7 and Stages 01–07, then returns
-`INTERNAL_COMPILER_ERROR` at the Phase 8 fingerprint/manifest boundary;
-equivalence asserts identical bytes and codes, not full semantic success that
-has not yet been implemented.
+The canonical request now passes C3–C8 and returns the complete fourteen-file
+Phase 8 success result. Equivalence asserts both fingerprints, the status line,
+the filename set, and every artifact byte.
 
 Separate Worker fixtures prove timeout termination, thrown-worker failure,
 malformed-result rejection, structured-clone rejection, active-work shutdown,
@@ -73,6 +72,7 @@ to enforce wherever their loading mechanism supports it; the reference HTTP
 harness verifies the exact locked bytes before execution through the build
 gate.
 
-`SOURCE_COMMIT` is not yet consumed by the C0–C6 core. Phase 11 remains the
-truthful packaging point for injecting the final release commit and regenerating
-the bundle lock after manifest construction makes that constant observable.
+`SOURCE_COMMIT` is now consumed by the Phase 8 core manifest. Development builds
+inject the explicit forty-zero sentinel pinned by the Phase 8 goldens. Phase 11
+remains the truthful packaging point for injecting the final release commit and
+regenerating the goldens, bundle, and bundle lock as release evidence.

@@ -61,7 +61,19 @@ async function browserCompile(page, coreRequest) {
       const result = await compiler.compile(request);
       return {
         ...result,
-        errorReport: [...result.errorReport],
+        ...(result.artifacts === undefined
+          ? {}
+          : {
+              artifacts: Object.fromEntries(
+                Object.entries(result.artifacts).map(([name, bytes]) => [
+                  name,
+                  [...bytes],
+                ]),
+              ),
+            }),
+        ...(result.errorReport === undefined
+          ? {}
+          : { errorReport: [...result.errorReport] }),
       };
     } finally {
       await compiler.close();

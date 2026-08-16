@@ -73,10 +73,19 @@ async function browserCompile(page, coreRequest, options = {}) {
         const result = await handle.compile(request, options.supervision);
         return {
           ...result,
-          errorReport:
-            result.errorReport === undefined
-              ? undefined
-              : [...result.errorReport],
+          ...(result.artifacts === undefined
+            ? {}
+            : {
+                artifacts: Object.fromEntries(
+                  Object.entries(result.artifacts).map(([name, bytes]) => [
+                    name,
+                    [...bytes],
+                  ]),
+                ),
+              }),
+          ...(result.errorReport === undefined
+            ? {}
+            : { errorReport: [...result.errorReport] }),
         };
       } finally {
         await handle.close();

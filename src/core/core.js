@@ -2,7 +2,8 @@ import { EMBEDDED_ARTIFACT_DIGESTS } from "./build-constants.js";
 import { CoreFailure } from "./core-failure.js";
 import { buildErrorReport } from "./error-report.js";
 import { decodeUtf8Input, JsonScanError, scanJsonText } from "./json-scan.js";
-import { runPhase7 } from "./phase7.js";
+import { sha256 } from "./hash.js";
+import { runPhase8 } from "./phase8.js";
 
 const INPUT_ROLES = [
   "context",
@@ -108,14 +109,6 @@ function failure(code, violations = []) {
   };
 }
 
-function lowercaseHex(arrayBuffer) {
-  let result = "";
-  for (const value of new Uint8Array(arrayBuffer)) {
-    result += value.toString(16).padStart(2, "0");
-  }
-  return result;
-}
-
 function decodeLockedAsciiCarrier(bytes) {
   let result = "";
   for (const value of bytes) {
@@ -125,10 +118,6 @@ function decodeLockedAsciiCarrier(bytes) {
     result += String.fromCharCode(value);
   }
   return result;
-}
-
-async function sha256(bytes) {
-  return lowercaseHex(await crypto.subtle.digest("SHA-256", bytes));
 }
 
 export async function compileCore(coreRequest) {
@@ -183,16 +172,13 @@ export async function compileCore(coreRequest) {
   }
 
   try {
-    await runPhase7(parsedInputs);
+    return await runPhase8(parsedInputs, inputs);
   } catch (error) {
     if (error instanceof CoreFailure) {
       return failure(error.code, error.violations);
     }
     return failure("INTERNAL_COMPILER_ERROR");
   }
-
-  // Fingerprints, manifests, and the complete success result arrive in Phase 8.
-  return failure("INTERNAL_COMPILER_ERROR");
 }
 
 export { buildErrorReport };

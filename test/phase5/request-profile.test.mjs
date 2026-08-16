@@ -22,6 +22,11 @@ function assertFailure(result, code) {
   );
 }
 
+function assertSuccess(result) {
+  assert.equal(result.status, "success");
+  assert.match(result.coreFingerprint, /^[0-9a-f]{64}$/u);
+}
+
 async function requestWithText(text) {
   const request = cloneCoreRequest(await canonicalCoreRequest());
   request.inputs.request = encoder.encode(text);
@@ -48,7 +53,7 @@ test("the request parser applies the anchored greedy grammar and BOM policy", as
 
   const bom = cloneCoreRequest(await canonicalCoreRequest());
   bom.inputs.request = new Uint8Array([0xef, 0xbb, 0xbf, ...bom.inputs.request]);
-  assertFailure(await compileCore(bom), "INTERNAL_COMPILER_ERROR");
+  assertSuccess(await compileCore(bom));
 });
 
 test("the terminal suffix uniquely captures an interior grammar suffix", async () => {
@@ -61,7 +66,7 @@ test("the terminal suffix uniquely captures an interior grammar suffix", async (
   request.inputs.request = encoder.encode(
     `Create a two-slide presentation explaining ${designator} to a general audience.\n`,
   );
-  assertFailure(await compileCore(request), "INTERNAL_COMPILER_ERROR");
+  assertSuccess(await compileCore(request));
 });
 
 test("request and label scalar boundaries pass at 256", async () => {
@@ -75,7 +80,7 @@ test("request and label scalar boundaries pass at 256", async () => {
   request.inputs.request = encoder.encode(
     `Create a two-slide presentation explaining ${designator} to a general audience.\r\n`,
   );
-  assertFailure(await compileCore(request), "INTERNAL_COMPILER_ERROR");
+  assertSuccess(await compileCore(request));
 });
 
 test("request resolution compares NFC-normalized designator labels", async () => {
@@ -87,7 +92,7 @@ test("request resolution compares NFC-normalized designator labels", async () =>
   request.inputs.request = encoder.encode(
     "Create a two-slide presentation explaining Café to a general audience.\n",
   );
-  assertFailure(await compileCore(request), "INTERNAL_COMPILER_ERROR");
+  assertSuccess(await compileCore(request));
 });
 
 test("profile identity and expanded triple-set equality are both enforced", async () => {

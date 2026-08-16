@@ -13,6 +13,16 @@ const PHASE7_ARTIFACTS = [
   "presentation.html",
 ];
 
+const PHASE8_ARTIFACTS = [
+  ".relationship-presentation-poc-owned",
+  ...PHASE7_ARTIFACTS.slice(0, 8),
+  "08-core-manifest.json",
+  "09-distribution-manifest.json",
+  "presentation.html",
+  "demo.html",
+  "validation-report.json",
+];
+
 function findText(narrative, id) {
   const content = [
     ...(narrative.hasDocumentContent ?? []),
@@ -24,7 +34,7 @@ function findText(narrative, id) {
   return content.textValue;
 }
 
-export function buildDemoHtml(narrative, presentationBytes) {
+export function buildDemoHtml(narrative, presentationBytes, options = {}) {
   let presentation;
   try {
     presentation = new TextDecoder("utf-8", { fatal: true }).decode(
@@ -35,7 +45,9 @@ export function buildDemoHtml(narrative, presentationBytes) {
   }
   const documentTitle = findText(narrative, "run:document-title-content");
   const message = findText(narrative, "run:primary-message-content-1");
-  const artifactItems = PHASE7_ARTIFACTS.map(
+  const phase = options.coreFingerprint === undefined ? 7 : 8;
+  const artifacts = phase === 7 ? PHASE7_ARTIFACTS : PHASE8_ARTIFACTS;
+  const artifactItems = artifacts.map(
     (name) =>
       `          <li><a href="${escapeHtmlAttribute(
         name,
@@ -46,7 +58,7 @@ export function buildDemoHtml(narrative, presentationBytes) {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Relationship Presentation Compiler — Phase 7 demo</title>
+    <title>Relationship Presentation Compiler — Phase ${phase} demo</title>
     <style>
       :root { color-scheme: light; font-family: system-ui, sans-serif; color: #172033; background: #eef2f7; }
       * { box-sizing: border-box; }
@@ -67,10 +79,17 @@ export function buildDemoHtml(narrative, presentationBytes) {
   <body>
     <main>
       <header>
-        <p class="eyebrow">Edge-canonical compiler · Phase 7</p>
+        <p class="eyebrow">Edge-canonical compiler · Phase ${phase}</p>
         <h1>${escapeHtmlText(documentTitle)}</h1>
         <p class="summary">${escapeHtmlText(message)} This diagnostic viewer presents the deterministic Stage 07 HTML projection. Its embedded presentation is network-silent because its locked carriers make no requests.</p>
         <p><a href="presentation.html">Open the generated presentation directly</a></p>
+        ${
+          options.coreFingerprint === undefined
+            ? ""
+            : `<p>Core fingerprint: <code>${escapeHtmlText(
+                options.coreFingerprint,
+              )}</code></p>`
+        }
       </header>
       <iframe title="Generated presentation: ${escapeHtmlAttribute(
         documentTitle,
@@ -78,7 +97,7 @@ export function buildDemoHtml(narrative, presentationBytes) {
         presentation,
       )}"></iframe>
       <section aria-labelledby="artifact-heading">
-        <h2 id="artifact-heading">Phase 7 artifacts</h2>
+        <h2 id="artifact-heading">Phase ${phase} artifacts</h2>
         <ol>
 ${artifactItems}
         </ol>

@@ -1,4 +1,4 @@
-name: Deploy Phase 7 demo to Pages
+name: Deploy Phase 8 verified artifact set to Pages
 
 on:
   push:
@@ -32,11 +32,11 @@ jobs:
       - name: Install locked graph
         run: npm ci
 
-      - name: Verify Phase 7 renderer and generated site
-        run: npm run test:phase7:node
+      - name: Verify Phase 8 manifests and generated site
+        run: npm run test:phase8:node
 
       - name: Generate static site
-        run: npm run generate:phase7:site
+        run: npm run generate:phase8:site
 
       - name: Configure Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5

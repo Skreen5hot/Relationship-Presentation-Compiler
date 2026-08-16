@@ -53,9 +53,8 @@ and depth 64/65.
 
 At the Phase 2 exit, structurally conforming inputs returned deterministic
 `INTERNAL_COMPILER_ERROR` because C3–C8 were absent. The current core carries
-the canonical fixture through C3–C7 and Stages 01–07 before returning the same
-explicit boundary sentinel for the still-absent Phase 8 manifests. The sentinel
-remains an incremental-build behavior, not a v1.0 release success claim.
+the canonical fixture through C3–C8 and returns the complete successful Phase 8
+artifact map. The old sentinel remains documented only as incremental history.
 
 ## CPS enforcement
 
@@ -69,8 +68,9 @@ JSON-LD, closed-world, narrative, and rendering path, in a Node Worker and a
 real Chromium Worker with prohibited globals replaced by throwing traps.
 `TextDecoder`, `TextEncoder`, and WebCrypto are instrumented. Host WebCrypto
 internals are calibrated before observations are cleared, so evidence records
-only the core calls. The canonical Phase 7 path observes exactly five
-`"SHA-256"` requests, eight fatal UTF-8 decoders (six structural inputs plus
-rendered-document revalidation and demo embedding), and four encoders
-(presentation, revalidator round trip, demo, and boundary report). Every case
-produces byte-identical error reports, codes, and status lines across hosts.
+only the core calls. The canonical Phase 8 path observes exactly 44
+`"SHA-256"` requests, ten fatal UTF-8 decoders, and three dynamically created
+encoders. These include artifact-lock checks, manifest inputs and outputs,
+fingerprints, self-verification, rendered-document revalidation, demo embedding,
+and manifest parsing. Every case produces byte-identical success or failure
+surfaces across hosts.

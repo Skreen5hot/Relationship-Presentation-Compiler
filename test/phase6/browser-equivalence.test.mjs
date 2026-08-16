@@ -65,7 +65,22 @@ async function browserCompile(page, coreRequest) {
         ),
       };
       const result = await compiler.compile(request);
-      return { ...result, errorReport: [...result.errorReport] };
+      return {
+        ...result,
+        ...(result.artifacts === undefined
+          ? {}
+          : {
+              artifacts: Object.fromEntries(
+                Object.entries(result.artifacts).map(([name, bytes]) => [
+                  name,
+                  [...bytes],
+                ]),
+              ),
+            }),
+        ...(result.errorReport === undefined
+          ? {}
+          : { errorReport: [...result.errorReport] }),
+      };
     } finally {
       await compiler.close();
     }
@@ -125,7 +140,7 @@ test("Phase 6 selection, provenance, and presentation paths are Worker-equivalen
 
     for (const coreRequest of [canonical, lateBound, placeholders]) {
       const expected = comparableResult(await core.compileCore(coreRequest));
-      assert.equal(expected.code, "INTERNAL_COMPILER_ERROR");
+      assert.equal(expected.status, "success");
       assert.deepEqual(await browserCompile(page, coreRequest), expected);
     }
   } finally {

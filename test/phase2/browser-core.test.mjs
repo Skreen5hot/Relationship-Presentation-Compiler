@@ -74,7 +74,7 @@ test("Chromium matches Node for the poisoned Phase 2 core corpus", async () => {
   const invalidRequestUtf8 = cloneCoreRequest(canonical);
   invalidRequestUtf8.inputs.request = new Uint8Array([0xff]);
   const corpus = [
-    [canonical, 5, 8, 4],
+    [canonical, 44, 10, 3],
     [missingInput, 0, 0],
     [unknownInput, 0, 0],
     [nonByteInput, 0, 0],
@@ -142,7 +142,18 @@ test("Chromium matches Node for the poisoned Phase 2 core corpus", async () => {
                 observations: message.observations,
                 result: {
                   ...message.result,
-                  errorReport: [...message.result.errorReport],
+                  ...(message.result.artifacts === undefined
+                    ? {}
+                    : {
+                        artifacts: Object.fromEntries(
+                          Object.entries(message.result.artifacts).map(
+                            ([name, bytes]) => [name, [...bytes]],
+                          ),
+                        ),
+                      }),
+                  ...(message.result.errorReport === undefined
+                    ? {}
+                    : { errorReport: [...message.result.errorReport] }),
                 },
               });
             };

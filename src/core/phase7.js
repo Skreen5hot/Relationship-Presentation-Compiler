@@ -5,7 +5,7 @@ import { renderHtmlDocument } from "./render-html.js";
 import { revalidateHtmlSubset } from "./revalidate-html.js";
 import { serializeJsonLd } from "./stable-jsonld.js";
 
-export async function runPhase7(parsedInputs) {
+export async function runPhase7(parsedInputs, options = {}) {
   const phase6 = await runPhase6(parsedInputs);
   const htmlProjection = projectHtmlDocument(
     phase6.stages.narrative,
@@ -30,11 +30,15 @@ export async function runPhase7(parsedInputs) {
     "07-html-projection.jsonld": htmlProjectionBytes,
     "presentation.html": presentationHtml,
   };
-  const demoHtml = buildDemoHtml(phase6.stages.narrative, presentationHtml);
+  const demoHtml =
+    options.includeDemo === false
+      ? undefined
+      : buildDemoHtml(phase6.stages.narrative, presentationHtml);
 
   return {
     ...phase6,
-    artifacts: { ...artifacts, "demo.html": demoHtml },
+    artifacts:
+      demoHtml === undefined ? artifacts : { ...artifacts, "demo.html": demoHtml },
     stages: { ...phase6.stages, htmlProjection },
   };
 }

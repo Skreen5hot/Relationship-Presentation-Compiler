@@ -28,6 +28,11 @@ function assertCode(result, code) {
   assert.equal(result.statusLine, `status=error code=${code}\n`);
 }
 
+function assertSuccess(result) {
+  assert.equal(result.status, "success");
+  assert.match(result.coreFingerprint, /^[0-9a-f]{64}$/u);
+}
+
 test("C3 accepts only the approved token or a conforming inline context", async () => {
   const { parsed } = await phase5Inputs();
   for (const [context, code] of [
@@ -45,7 +50,7 @@ test("C3 accepts only the approved token or a conforming inline context", async 
     ...clone(parsed.context["@context"]),
     fixture: { "@id": "https://fixture-prefix.example.test/", "@prefix": true },
   };
-  assertCode(await compileSource(inline), "INTERNAL_COMPILER_ERROR");
+  assertSuccess(await compileSource(inline));
 
   const redefined = clone(inline);
   redefined["@context"].label = "skos:prefLabel";
@@ -109,7 +114,7 @@ test("C3 enforces context-term and collapsed-triple limits at their boundaries",
   const contextBoundary = clone(contextHeavy);
   delete contextBoundary["@context"][Object.keys(contextBoundary["@context"]).at(-1)];
   assert.equal(Object.keys(contextBoundary["@context"]).length, 250);
-  assertCode(await compileSource(contextBoundary), "INTERNAL_COMPILER_ERROR");
+  assertSuccess(await compileSource(contextBoundary));
 
   const tripleHeavy = {
     "@context": "../contexts/poc.context.jsonld",

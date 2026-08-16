@@ -9,9 +9,9 @@ Specification: Relationship Presentation Compiler v1.0, edge-canonical re-cut
 Phase 6 implements canonical Stages 04–06. At the Phase 6 exit, a conforming
 invocation built the content manifest, renderer-independent narrative, and
 target-neutral presentation before returning the deterministic
-`INTERNAL_COMPILER_ERROR` sentinel at Stage 07. Phase 7 now continues through
-HTML projection and revalidated rendering. Phase 6 did not claim a complete
-v1.0 artifact set or deployable HTML.
+`INTERNAL_COMPILER_ERROR` sentinel at Stage 07. Later phases now continue
+through HTML projection, revalidated rendering, and the complete Phase 8
+success result. Phase 6 itself did not claim the final artifact set.
 
 ## Closed content selection
 

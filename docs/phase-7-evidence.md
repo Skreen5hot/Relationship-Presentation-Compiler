@@ -8,10 +8,9 @@ Specification: Relationship Presentation Compiler v1.0, edge-canonical re-cut
 
 Phase 7 implements canonical Stage 07, deterministic presentation rendering,
 the shipped subset revalidator, independent HTML5 evidence, the diagnostic
-demo, and GitHub Pages deployment. A conforming invocation completes these
-operations before returning the incremental `INTERNAL_COMPILER_ERROR` sentinel
-at the Phase 8 fingerprint/manifest boundary. It does not yet claim the complete
-fourteen-file v1.0 success result.
+demo, and GitHub Pages deployment. At the Phase 7 exit a conforming invocation
+returned the incremental `INTERNAL_COMPILER_ERROR` sentinel; the current core
+continues through the complete Phase 8 fourteen-file success result.
 
 ## Complete HTML projection
 

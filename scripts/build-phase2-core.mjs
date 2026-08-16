@@ -32,6 +32,12 @@ const embeddedArtifactDigests = Object.fromEntries(
     artifact.sha256,
   ]),
 );
+const compilerIdentity = {
+  name: "relationship-presentation-poc",
+  version: "1.0.0",
+  // Phase 11 replaces this development sentinel during release packaging.
+  sourceCommit: "0000000000000000000000000000000000000000",
+};
 assert.deepEqual(Object.keys(embeddedArtifactDigests), [
   "context",
   "contract",
@@ -56,6 +62,9 @@ const coreOptions = {
   charset: "utf8",
   define: {
     __RPC_ARTIFACT_DIGESTS__: JSON.stringify(embeddedArtifactDigests),
+    __RPC_COMPILER_NAME__: JSON.stringify(compilerIdentity.name),
+    __RPC_COMPILER_VERSION__: JSON.stringify(compilerIdentity.version),
+    __RPC_SOURCE_COMMIT__: JSON.stringify(compilerIdentity.sourceCommit),
   },
   entryPoints: [resolve(repositoryRoot, "src/core/core.js")],
   format: "esm",

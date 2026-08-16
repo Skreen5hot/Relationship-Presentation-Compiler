@@ -1,0 +1,5 @@
+{
+  "sentinelVersion": "owned-output-v1.0",
+  "owner": "relationship-presentation-poc",
+  "purpose": "Marks this directory as compiler-owned output eligible for replacement."
+}

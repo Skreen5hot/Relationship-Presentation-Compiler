@@ -2,8 +2,8 @@
   "lockVersion": "browser-host-lock-v1.0",
   "bundle": {
     "path": "browser/relationship-presentation-core.bundle.mjs",
-    "sha256": "b34de5175ce77e29c5030512c519a8b88e881d057319c050e88914ea93ecf0a2",
-    "sriIntegrity": "sha384-QxUJwoirZDwytWgJL393ImetEDu3OZHrAB/2E46xed5WcmnGvyKQaFNRSZhpyCdx"
+    "sha256": "8a785265675422e0b37783787341b7f3e012a9b407efd64e927793864ed39871",
+    "sriIntegrity": "sha384-G68ZqaXgF5mtWSt2LF1cDEYoy9fzTs7v9PCy4eHjqSJUXPYnzfha/e4BFshPPbTu"
   },
   "bundler": {
     "package": "esbuild",
