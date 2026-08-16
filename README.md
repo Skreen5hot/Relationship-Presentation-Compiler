@@ -6,13 +6,13 @@ stages.
 
 ## Status
 
-Phases 0 through 3 establish the Edge-Canonical substrate, immutable release
-inputs, core boundary, and recoverable Node publication layer: locked tool
-selections, strict lock schemas, a CPS-scanned JSON-LD slice, the normative
-context/contract/profile, inert carriers, pinned ontology evidence, a
-reproducible CycloneDX 1.7 SBOM, the C0–C2 compiler shell with poisoned-host
-equivalence, and OS-locked staged publication with journaled recovery. The
-semantic compiler stages and GitHub Pages demo are intentionally added later.
+Phases 0 through 4 establish the Edge-Canonical substrate, immutable release
+inputs, core boundary, both host shells, and recoverable Node publication:
+locked tools and schemas, a CPS-scanned JSON-LD slice, normative static inputs,
+pinned ontology evidence, a reproducible CycloneDX 1.7 SBOM, the C0–C2 core,
+OS-locked journaled publication, and a deterministic SRI-locked browser bundle
+executed through a supervised dedicated Worker. Semantic compilation and the
+GitHub Pages demo are intentionally added later.
 
 The normative design is
 [`relationship-presentation-spec-v1_0.md`](relationship-presentation-spec-v1_0.md).
@@ -22,7 +22,8 @@ hashes, and deferrals are recorded in
 [`docs/phase-1-evidence.md`](docs/phase-1-evidence.md). Phase 2 boundary and CPS
 evidence is in [`docs/phase-2-evidence.md`](docs/phase-2-evidence.md). Phase 3
 publication evidence is in
-[`docs/phase-3-evidence.md`](docs/phase-3-evidence.md).
+[`docs/phase-3-evidence.md`](docs/phase-3-evidence.md). Phase 4 browser-host
+evidence is in [`docs/phase-4-evidence.md`](docs/phase-4-evidence.md).
 
 ## Phase 0 verification
 
@@ -86,3 +87,19 @@ failure-report placement. It runs on both Windows and Ubuntu in CI.
 The end-to-end CLI remains intentionally unavailable: Phase 3 proves placement
 of a supplied fourteen-file byte map, while later semantic phases produce and
 verify the real canonical artifact set.
+
+## Phase 4 verification
+
+Reproduce the committed browser bundle and run the host gates:
+
+```text
+npm run test:phase4:node
+npm run test:phase4:browser
+```
+
+The Node gate rebuilds the single ESM core twice, verifies byte identity against
+the committed bundle, checks its CPS surface, and validates SHA-256, SRI,
+bundler, and engine pins in `browser-host.lock.json`. The browser gate uses the
+pinned real Chromium engine to exercise the reference Worker host, 40-second
+default supervision contract, timeout and abnormal-worker mappings, explicit
+shutdown, and Node-equivalent core results.

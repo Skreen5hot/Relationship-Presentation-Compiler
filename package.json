@@ -16,11 +16,13 @@
   "scripts": {
     "build:phase0": "node scripts/build-phase0-browser.mjs",
     "build:phase2": "node scripts/build-phase2-core.mjs",
+    "generate:phase4:browser": "node scripts/build-phase4-browser.mjs",
     "check:runtime": "node scripts/verify-runtime.mjs",
     "generate:phase1:locks": "node scripts/generate-phase1-locks.mjs",
     "generate:sbom": "node scripts/generate-sbom.mjs",
     "generate:phase1": "npm run generate:phase1:locks && npm run generate:sbom",
     "check:phase1:generated": "node scripts/generate-phase1-locks.mjs --check && node scripts/generate-sbom.mjs --check",
+    "check:phase4:generated": "node scripts/build-phase4-browser.mjs --check",
     "test:phase0:node": "npm run build:phase0 && node --test test/phase0/decision-record.test.mjs test/phase0/filesystem-lock.test.mjs test/phase0/jsonld-cps.test.mjs",
     "test:phase0:browser": "npm run build:phase0 && node --test test/phase0/browser-worker.test.mjs",
     "test:phase0": "npm run check:runtime && npm run test:phase0:node && npm run test:phase0:browser",
@@ -30,7 +32,10 @@
     "test:phase2": "npm run check:runtime && npm run test:phase2:node && npm run test:phase2:browser",
     "test:phase3:node": "npm run check:runtime && node --test test/phase3/publication.test.mjs",
     "test:phase3": "npm run test:phase3:node",
-    "test": "npm run test:phase0 && npm run test:phase1 && npm run test:phase2 && npm run test:phase3"
+    "test:phase4:node": "npm run check:runtime && npm run check:phase4:generated && node --test test/phase4/browser-lock.test.mjs",
+    "test:phase4:browser": "npm run check:phase4:generated && node --test test/phase4/browser-host.test.mjs",
+    "test:phase4": "npm run test:phase4:node && npm run test:phase4:browser",
+    "test": "npm run test:phase0 && npm run test:phase1 && npm run test:phase2 && npm run test:phase3 && npm run test:phase4"
   },
   "dependencies": {
     "fs-native-extensions": "1.5.0",

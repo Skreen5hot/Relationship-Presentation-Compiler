@@ -74,5 +74,7 @@ The concrete lock-file SHA-256 values are:
 
 `runtime.lock.json` cannot truthfully be populated until packaging can bind a
 release commit, the Node host, these lock hashes, and the SBOM hash.
-`browser-host.lock.json` likewise waits for the Phase 4 release bundle and
-engine evidence. They are intentionally not Phase 1 artifacts.
+`browser-host.lock.json` was subsequently populated in Phase 4 with the
+reproducible core bundle, SRI, bundler evidence, and the exact pinned engine
+targets. Full three-engine execution evidence remains a Phase 11 release gate.
+It was intentionally not a Phase 1 artifact.

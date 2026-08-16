@@ -33,9 +33,9 @@ style, carrier navigation. `compileCore` hashes the copied raw bytes with only
 `ARTIFACT_LOCK_MISMATCH` on the first mismatch. Mutation cases cover every
 role under Node and Chromium.
 
-The Phase 2 output is an ignored development bundle. Phase 4 will create the
-release browser-host bundle and its lock; Phase 11 will inject the release
-commit and reproduce the final packaging.
+The Phase 2 output is an ignored development bundle. Phase 4 subsequently
+created the committed browser-host bundle and its lock; Phase 11 will inject
+the release commit and reproduce the final packaging.
 
 ## C2 structural validation
 

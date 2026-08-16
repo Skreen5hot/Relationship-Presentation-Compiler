@@ -1,4 +1,4 @@
-name: Phase 0 through 3 gates
+name: Phase 0 through 4 gates
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase0-phase3-${{ github.workflow }}-${{ github.ref }}
+  group: phase0-phase4-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -52,6 +52,9 @@ jobs:
       - name: Verify Node publication safety, locking, and crash recovery
         run: npm run test:phase3:node
 
+      - name: Reproduce and verify the locked browser core bundle
+        run: npm run test:phase4:node
+
   chromium-worker:
     name: Chromium Worker equivalence
     runs-on: ubuntu-latest
@@ -82,3 +85,6 @@ jobs:
 
       - name: Run poisoned Chromium core-equivalence gate
         run: npm run test:phase2:browser
+
+      - name: Run the supervised reference Browser host
+        run: npm run test:phase4:browser
